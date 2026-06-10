@@ -13,9 +13,10 @@
   "author": "lenarrt",
   "license": "MIT",
   "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
     "@vitejs/plugin-react": "latest",
     "concurrently": "latest",
-    "electron": "latest",
+    "electron": "^33.3.1",
     "electron-builder": "latest",
     "vite": "latest",
     "wait-on": "latest"
