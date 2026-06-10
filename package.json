@@ -13,15 +13,17 @@
   "author": "lenarrt",
   "license": "MIT",
   "devDependencies": {
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "latest",
     "electron": "latest",
     "electron-builder": "latest",
-    "@vitejs/plugin-react": "latest",
     "vite": "latest",
-    "concurrently": "latest",
     "wait-on": "latest"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.0",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "tailwindcss": "^4.3.0"
   }
 }
