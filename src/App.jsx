@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout'
 import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import POS from './pages/POS'
+import SalesHistory from './pages/SalesHistory'
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth)
@@ -16,16 +17,22 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard />
-      case 'products': return <Products />
-      case 'pos': return <POS />
-      default: return (
-        <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400 text-lg">
-            🚧 {currentPage} page coming soon...
-          </p>
-        </div>
-      )
+      case 'dashboard':
+        return <Dashboard />
+      case 'products':
+        return <Products />
+      case 'pos':
+        return <POS />
+      case 'sales':
+        return <SalesHistory />
+      default:
+        return (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-gray-400 text-lg">
+              🚧 {currentPage} page coming soon...
+            </p>
+          </div>
+        )
     }
   }
 
