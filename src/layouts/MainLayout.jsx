@@ -62,7 +62,7 @@ const Icons = {
   ),
 }
 
-function MainLayout({ currentPage, setCurrentPage }) {
+function MainLayout({ currentPage, setCurrentPage, children }) {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const isOwner = user?.role === 'owner'
@@ -164,7 +164,7 @@ function MainLayout({ currentPage, setCurrentPage }) {
 
         {/* Page Content */}
         <div className="p-6">
-          {/* Pages will render here */}
+            {children}
         </div>
       </div>
     </div>

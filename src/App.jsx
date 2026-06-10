@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import Login from './pages/Login'
 import MainLayout from './layouts/MainLayout'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth)
@@ -11,8 +12,23 @@ function App() {
     return <Login />
   }
 
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard': return <Dashboard />
+      default: return (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-400 text-lg">
+            🚧 {currentPage} page coming soon...
+          </p>
+        </div>
+      )
+    }
+  }
+
   return (
-    <MainLayout currentPage={currentPage} setCurrentPage={setCurrentPage} />
+    <MainLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
+      {renderPage()}
+    </MainLayout>
   )
 }
 
