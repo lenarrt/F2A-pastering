@@ -584,15 +584,19 @@ function POS() {
             </div>
           )}
 
-          {/* Customer Name for Pay Later */}
-          {payLater && !isInternalUse && (
+          {/* Customer Name — always visible, not just for Pay Later */}
+          {!isInternalUse && (
             <input
               value={manualCustomerName}
               onChange={(e) => setManualCustomerName(e.target.value)}
-              placeholder="Customer name..."
-              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2
-                         text-sm outline-none focus:ring-2 focus:ring-yellow-500
-                         placeholder-gray-500"
+              placeholder="Customer name (optional)..."
+              className={`w-full bg-gray-700 text-white rounded-lg px-3 py-2
+               text-sm outline-none placeholder-gray-500
+               ${
+                 payLater
+                   ? 'focus:ring-2 focus:ring-yellow-500'
+                   : 'focus:ring-2 focus:ring-blue-500'
+               }`}
             />
           )}
 
