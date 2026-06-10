@@ -112,7 +112,7 @@ function Dashboard() {
         />
         <StatCard
           title="Today's Revenue"
-          value={`€${todayRevenue.toFixed(2)}`}
+          value={`den ${todayRevenue.toFixed(2)}`}
           subtitle="total earned today"
           color="text-green-400"
           icon="💰"
@@ -188,7 +188,7 @@ function Dashboard() {
                     </p>
                   </div>
                   <span className="text-green-400 font-semibold text-sm">
-                    €{sale.total.toFixed(2)}
+                    den {sale.total.toFixed(2)}
                   </span>
                 </div>
               ))}

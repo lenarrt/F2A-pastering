@@ -18,6 +18,7 @@
     "concurrently": "latest",
     "electron": "^33.3.1",
     "electron-builder": "latest",
+    "prettier": "^3.8.4",
     "vite": "latest",
     "wait-on": "latest"
   },

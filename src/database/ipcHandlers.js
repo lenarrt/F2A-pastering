@@ -9,32 +9,17 @@ const JWT_SECRET = 'f2a-plastering-secret-key'
 ipcMain.handle('auth:login', (event, { username, password }) => {
   try {
     const user = db.prepare('SELECT * FROM users WHERE username = ?').get(username)
-    
-    if (!user) {
-      return { success: false, message: 'User not found' }
-    }
-
+    if (!user) return { success: false, message: 'User not found' }
     const validPassword = bcrypt.compareSync(password, user.password)
-    
-    if (!validPassword) {
-      return { success: false, message: 'Invalid password' }
-    }
-
+    if (!validPassword) return { success: false, message: 'Invalid password' }
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
       JWT_SECRET,
       { expiresIn: '8h' }
     )
-
     return {
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        role: user.role
-      }
+      success: true, token,
+      user: { id: user.id, name: user.name, username: user.username, role: user.role }
     }
   } catch (error) {
     return { success: false, message: error.message }
@@ -44,7 +29,9 @@ ipcMain.handle('auth:login', (event, { username, password }) => {
 // ============ USERS ============
 ipcMain.handle('users:getAll', () => {
   try {
-    const users = db.prepare('SELECT id, name, username, role, created_at FROM users').all()
+    const users = db.prepare(
+      'SELECT id, name, username, role, created_at FROM users'
+    ).all()
     return { success: true, data: users }
   } catch (error) {
     return { success: false, message: error.message }
@@ -68,11 +55,11 @@ ipcMain.handle('users:update', (event, { id, name, username, role, password }) =
     if (password) {
       const hashedPassword = bcrypt.hashSync(password, 10)
       db.prepare(
-        'UPDATE users SET name = ?, username = ?, role = ?, password = ? WHERE id = ?'
+        'UPDATE users SET name=?, username=?, role=?, password=? WHERE id=?'
       ).run(name, username, role, hashedPassword, id)
     } else {
       db.prepare(
-        'UPDATE users SET name = ?, username = ?, role = ? WHERE id = ?'
+        'UPDATE users SET name=?, username=?, role=? WHERE id=?'
       ).run(name, username, role, id)
     }
     return { success: true }
@@ -85,6 +72,27 @@ ipcMain.handle('users:delete', (event, id) => {
   try {
     db.prepare('DELETE FROM users WHERE id = ?').run(id)
     return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+// ============ CUSTOMERS ============
+ipcMain.handle('customers:getAll', () => {
+  try {
+    const customers = db.prepare('SELECT * FROM customers ORDER BY name').all()
+    return { success: true, data: customers }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+ipcMain.handle('customers:create', (event, { name, phone, note }) => {
+  try {
+    const result = db.prepare(
+      'INSERT INTO customers (name, phone, note) VALUES (?, ?, ?)'
+    ).run(name, phone || null, note || null)
+    return { success: true, id: result.lastInsertRowid }
   } catch (error) {
     return { success: false, message: error.message }
   }
@@ -113,7 +121,7 @@ ipcMain.handle('categories:create', (event, { name }) => {
 ipcMain.handle('products:getAll', () => {
   try {
     const products = db.prepare(`
-      SELECT p.*, c.name as category_name 
+      SELECT p.*, c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
     `).all()
@@ -128,7 +136,7 @@ ipcMain.handle('products:create', (event, { name, barcode, category_id, price, s
     const result = db.prepare(`
       INSERT INTO products (name, barcode, category_id, price, stock, low_stock_threshold, unit)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(name, barcode, category_id, price, stock, low_stock_threshold, unit)
+    `).run(name, barcode || null, category_id || null, price, stock, low_stock_threshold, unit)
     return { success: true, id: result.lastInsertRowid }
   } catch (error) {
     return { success: false, message: error.message }
@@ -138,9 +146,9 @@ ipcMain.handle('products:create', (event, { name, barcode, category_id, price, s
 ipcMain.handle('products:update', (event, { id, name, barcode, category_id, price, stock, low_stock_threshold, unit }) => {
   try {
     db.prepare(`
-      UPDATE products SET name = ?, barcode = ?, category_id = ?, price = ?, 
-      stock = ?, low_stock_threshold = ?, unit = ? WHERE id = ?
-    `).run(name, barcode, category_id, price, stock, low_stock_threshold, unit, id)
+      UPDATE products SET name=?, barcode=?, category_id=?, price=?,
+      stock=?, low_stock_threshold=?, unit=? WHERE id=?
+    `).run(name, barcode || null, category_id || null, price, stock, low_stock_threshold, unit, id)
     return { success: true }
   } catch (error) {
     return { success: false, message: error.message }
@@ -157,18 +165,38 @@ ipcMain.handle('products:delete', (event, id) => {
 })
 
 // ============ SALES ============
-ipcMain.handle('sales:create', (event, { user_id, total, items }) => {
+ipcMain.handle('sales:create', (event, { user_id, customer_id, customer_name, total, discount_total, items, sale_type, payment_status, note }) => {
   try {
-    // Use a transaction so everything saves or nothing does
     const createSale = db.transaction(() => {
-      const sale = db.prepare(
-        'INSERT INTO sales (user_id, total) VALUES (?, ?)'
-      ).run(user_id, total)
+      const sale = db.prepare(`
+        INSERT INTO sales 
+        (user_id, customer_id, customer_name, total, discount_total, sale_type, payment_status, note)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        user_id,
+        customer_id || null,
+        customer_name || null,
+        total,
+        discount_total || 0,
+        sale_type || 'sale',
+        payment_status || 'paid',
+        note || null
+      )
 
       for (const item of items) {
-        db.prepare(
-          'INSERT INTO sale_items (sale_id, product_id, quantity, price) VALUES (?, ?, ?, ?)'
-        ).run(sale.lastInsertRowid, item.product_id, item.quantity, item.price)
+        db.prepare(`
+          INSERT INTO sale_items 
+          (sale_id, product_id, quantity, price, discount_type, discount_value, final_price)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          sale.lastInsertRowid,
+          item.product_id,
+          item.quantity,
+          item.price,
+          item.discount_type || null,
+          item.discount_value || 0,
+          item.final_price
+        )
 
         // Deduct stock
         db.prepare(
@@ -195,7 +223,6 @@ ipcMain.handle('sales:getAll', () => {
       ORDER BY s.created_at DESC
     `).all()
 
-    // Get items for each sale
     const salesWithItems = sales.map(sale => {
       const items = db.prepare(`
         SELECT si.*, p.name as product_name
@@ -212,19 +239,110 @@ ipcMain.handle('sales:getAll', () => {
   }
 })
 
+ipcMain.handle('sales:void', (event, id) => {
+  try {
+    const voidSale = db.transaction(() => {
+      // Get sale items to restore stock
+      const items = db.prepare(
+        'SELECT * FROM sale_items WHERE sale_id = ?'
+      ).all(id)
+
+      // Restore stock for each item
+      for (const item of items) {
+        db.prepare(
+          'UPDATE products SET stock = stock + ? WHERE id = ?'
+        ).run(item.quantity, item.product_id)
+      }
+
+      // Mark sale as voided
+      db.prepare(
+        "UPDATE sales SET payment_status = 'voided' WHERE id = ?"
+      ).run(id)
+    })
+
+    voidSale()
+    return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+ipcMain.handle('sales:markPaid', (event, id) => {
+  try {
+    db.prepare(
+      "UPDATE sales SET payment_status = 'paid' WHERE id = ?"
+    ).run(id)
+    return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+// ============ INTERNAL USE ============
+ipcMain.handle('internal:create', (event, { user_id, note, items }) => {
+  try {
+    const createInternal = db.transaction(() => {
+      const log = db.prepare(
+        'INSERT INTO internal_use_log (user_id, note) VALUES (?, ?)'
+      ).run(user_id, note || null)
+
+      for (const item of items) {
+        db.prepare(
+          'INSERT INTO internal_use_items (log_id, product_id, quantity) VALUES (?, ?, ?)'
+        ).run(log.lastInsertRowid, item.product_id, item.quantity)
+
+        // Deduct stock
+        db.prepare(
+          'UPDATE products SET stock = stock - ? WHERE id = ?'
+        ).run(item.quantity, item.product_id)
+      }
+
+      return log.lastInsertRowid
+    })
+
+    const logId = createInternal()
+    return { success: true, id: logId }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+ipcMain.handle('internal:getAll', () => {
+  try {
+    const logs = db.prepare(`
+      SELECT l.*, u.name as user_name
+      FROM internal_use_log l
+      LEFT JOIN users u ON l.user_id = u.id
+      ORDER BY l.created_at DESC
+    `).all()
+
+    const logsWithItems = logs.map(log => {
+      const items = db.prepare(`
+        SELECT i.*, p.name as product_name, p.unit
+        FROM internal_use_items i
+        LEFT JOIN products p ON i.product_id = p.id
+        WHERE i.log_id = ?
+      `).all(log.id)
+      return { ...log, items }
+    })
+
+    return { success: true, data: logsWithItems }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
 // ============ RESTOCK ============
 ipcMain.handle('restock:create', (event, { product_id, quantity, note }) => {
   try {
     const restock = db.transaction(() => {
       db.prepare(
         'INSERT INTO restock_log (product_id, quantity, note) VALUES (?, ?, ?)'
-      ).run(product_id, quantity, note)
-
+      ).run(product_id, quantity, note || null)
       db.prepare(
         'UPDATE products SET stock = stock + ? WHERE id = ?'
       ).run(quantity, product_id)
     })
-
     restock()
     return { success: true }
   } catch (error) {
@@ -260,7 +378,9 @@ ipcMain.handle('settings:getAll', () => {
 
 ipcMain.handle('settings:update', (event, { key, value }) => {
   try {
-    db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run(key, value)
+    db.prepare(
+      'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)'
+    ).run(key, value)
     return { success: true }
   } catch (error) {
     return { success: false, message: error.message }

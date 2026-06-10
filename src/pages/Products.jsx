@@ -119,7 +119,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Price + Stock in a row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">Price (€) *</label>
+              <label className="text-gray-400 text-sm mb-1 block">Price (den ) *</label>
               <input
                 name="price"
                 type="number"
@@ -418,7 +418,7 @@ function Products() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-green-400 font-semibold">
-                      €{product.price.toFixed(2)}
+                      den {product.price.toFixed(2)}
                     </span>
                   </td>
                   <td className="px-6 py-4">

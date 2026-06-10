@@ -2,15 +2,12 @@ const Database = require('better-sqlite3')
 const path = require('path')
 const { app } = require('electron')
 
-// Store the database in the user's app data folder
 const dbPath = path.join(app.getPath('userData'), 'f2a-plastering.db')
 const db = new Database(dbPath)
 
-// Enable foreign keys for data integrity
 db.pragma('journal_mode = WAL')
 db.pragma('foreign_keys = ON')
 
-// Create all tables
 const initDatabase = () => {
 
   // Users table
@@ -50,18 +47,38 @@ const initDatabase = () => {
     )
   `)
 
-  // Sales table
+  // Customers table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS customers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      phone TEXT,
+      note TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Sales table — updated with new columns
   db.exec(`
     CREATE TABLE IF NOT EXISTS sales (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
+      customer_id INTEGER,
+      customer_name TEXT,
       total REAL NOT NULL,
+      discount_total REAL NOT NULL DEFAULT 0,
+      sale_type TEXT NOT NULL DEFAULT 'sale' 
+        CHECK(sale_type IN ('sale', 'internal')),
+      payment_status TEXT NOT NULL DEFAULT 'paid'
+        CHECK(payment_status IN ('paid', 'pending', 'voided')),
+      note TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (customer_id) REFERENCES customers(id)
     )
   `)
 
-  // Sale items table (each product in a sale)
+  // Sale items table — updated with discount
   db.exec(`
     CREATE TABLE IF NOT EXISTS sale_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +86,34 @@ const initDatabase = () => {
       product_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
       price REAL NOT NULL,
+      discount_type TEXT DEFAULT NULL
+        CHECK(discount_type IN ('percent', 'fixed', NULL)),
+      discount_value REAL DEFAULT 0,
+      final_price REAL NOT NULL,
       FOREIGN KEY (sale_id) REFERENCES sales(id),
+      FOREIGN KEY (product_id) REFERENCES products(id)
+    )
+  `)
+
+  // Internal use log
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS internal_use_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      note TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+  `)
+
+  // Internal use items
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS internal_use_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      log_id INTEGER NOT NULL,
+      product_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL,
+      FOREIGN KEY (log_id) REFERENCES internal_use_log(id),
       FOREIGN KEY (product_id) REFERENCES products(id)
     )
   `)
@@ -94,7 +138,7 @@ const initDatabase = () => {
     )
   `)
 
-  // Insert default settings
+  // Default settings
   db.exec(`
     INSERT OR IGNORE INTO settings (key, value) VALUES
     ('business_name', 'F2A Plastering'),
@@ -102,11 +146,9 @@ const initDatabase = () => {
     ('tax_rate', '0')
   `)
 
-  // Insert default owner account
-  // Password is "owner123" - we will change this later
+  // Default owner account
   const bcrypt = require('bcryptjs')
   const hashedPassword = bcrypt.hashSync('owner123', 10)
-  
   db.prepare(`
     INSERT OR IGNORE INTO users (name, username, password, role)
     VALUES (?, ?, ?, ?)
