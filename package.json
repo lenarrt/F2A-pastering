@@ -13,33 +13,39 @@
     "build:mac": "npm run build && electron-builder --mac"
   },
   "build": {
-    "appId": "com.f2a.plastering",
-    "productName": "F2A Plastering",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "main.js",
-      "preload.js",
-      "src/database/**/*",
-      "node_modules/**/*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "public/icon.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "public/icon.icns"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    }
+  "appId": "com.f2a.plastering",
+  "productName": "F2A Plastering",
+  "directories": {
+    "output": "dist-electron"
   },
+  "files": [
+    "dist/**/*",
+    "main.js",
+    "preload.js",
+    "src/database/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "dist",
+      "to": "dist"
+    }
+  ],
+  "mac": {
+    "target": "dmg"
+  },
+  "win": {
+    "target": "nsis"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true
+  }
+},
+
   "author": "lenarrt",
   "license": "MIT",
   "devDependencies": {

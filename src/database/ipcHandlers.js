@@ -268,6 +268,19 @@ ipcMain.handle('sales:void', (event, id) => {
   }
 })
 
+ipcMain.handle('sales:delete', (event, id) => {
+  try {
+    const deleteSale = db.transaction(() => {
+      db.prepare('DELETE FROM sale_items WHERE sale_id = ?').run(id)
+      db.prepare('DELETE FROM sales WHERE id = ?').run(id)
+    })
+    deleteSale()
+    return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
 ipcMain.handle('sales:markPaid', (event, id) => {
   try {
     db.prepare(

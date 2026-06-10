@@ -1,8 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
-const isDev = process.env.NODE_ENV !== 'production'
-
+const isDev = !app.isPackaged
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -24,12 +23,11 @@ function createWindow() {
     win.show()
   })
 
-  if (isDev) {
-    win.loadURL('http://localhost:5173')
-    win.webContents.openDevTools({ mode: 'detach' })
-  } else {
-    win.loadFile(path.join(__dirname, 'dist/index.html'))
-  }
+ if (isDev) {
+  win.loadURL('http://localhost:5173')
+} else {
+  win.loadFile(path.join(__dirname, 'dist/index.html'))
+}
 }
 
 app.whenReady().then(() => {

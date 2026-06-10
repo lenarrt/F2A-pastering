@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('api', {
   createSale: (sale) => ipcRenderer.invoke('sales:create', sale),
   getSales: () => ipcRenderer.invoke('sales:getAll'),
   voidSale: (id) => ipcRenderer.invoke('sales:void', id),
+  deleteSale: (id) => ipcRenderer.invoke('sales:delete', id),
   markSalePaid: (id) => ipcRenderer.invoke('sales:markPaid', id),
 
   // Internal Use

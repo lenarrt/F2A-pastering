@@ -193,6 +193,7 @@ function SalesHistory() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [voidConfirm, setVoidConfirm] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
 
   useEffect(() => {
     loadData()
@@ -218,6 +219,12 @@ function SalesHistory() {
         sale.id === id ? { ...sale, payment_status: 'voided' } : sale
       )
     )
+  }
+
+  const handleDelete = async (id) => {
+    await window.api.deleteSale(id)
+    setDeleteConfirm(null)
+    setSales(sales.filter((sale) => sale.id !== id))
   }
 
   const handleMarkPaid = async (id) => {
@@ -504,12 +511,20 @@ function SalesHistory() {
                         <button
                           onClick={() => setVoidConfirm(sale)}
                           className="bg-red-600/20 hover:bg-red-600 text-red-400
-                                     hover:text-white px-3 py-1.5 rounded-lg text-xs
-                                     font-medium transition-colors"
+               hover:text-white px-3 py-1.5 rounded-lg text-xs
+               font-medium transition-colors"
                         >
                           Void
                         </button>
                       )}
+                      <button
+                        onClick={() => setDeleteConfirm(sale)}
+                        className="bg-gray-600/20 hover:bg-gray-600 text-gray-400
+             hover:text-white px-3 py-1.5 rounded-lg text-xs
+             font-medium transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -561,6 +576,46 @@ function SalesHistory() {
                            rounded-lg py-2.5 font-medium transition-colors"
               >
                 Void Sale
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation */}
+      {deleteConfirm && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center
+                  justify-center z-50"
+        >
+          <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-white font-bold text-xl mb-2">
+              Delete Sale Permanently?
+            </h3>
+            <p className="text-gray-400 mb-2">
+              Are you sure you want to permanently delete{' '}
+              <span className="text-white font-medium">
+                Sale #{deleteConfirm.id}
+              </span>
+              ?
+            </p>
+            <p className="text-red-400 text-sm mb-6">
+              ⚠️ This will completely remove the sale from the database. Unlike
+              voiding, this cannot be undone and stock will NOT be restored.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
+                     rounded-lg py-2.5 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm.id)}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white
+                     rounded-lg py-2.5 font-medium transition-colors"
+              >
+                Delete Permanently
               </button>
             </div>
           </div>
