@@ -22,7 +22,7 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
         <body>
           <h2>${businessName}</h2>
           <p>Receipt #${sale.id}</p>
-          <p>${new Date(sale.created_at).toLocaleString()}</p>
+          <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
           <p>Cashier: ${sale.cashier_name}</p>
           ${sale.customer_name ? `<p>Customer: ${sale.customer_name}</p>` : ''}
           <div class="divider"></div>
@@ -87,7 +87,13 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
           <div className="text-4xl mb-2">🧾</div>
           <h3 className="text-white font-bold text-xl">Receipt #{sale.id}</h3>
           <p className="text-gray-400 text-sm mt-1">
-            {new Date(sale.created_at).toLocaleString()}
+            {new Date(sale.created_at).toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </p>
         </div>
 
@@ -98,7 +104,13 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
         >
           <p className="text-center font-bold text-sm">{businessName}</p>
           <p className="text-center text-xs text-gray-600">
-            {new Date(sale.created_at).toLocaleString()}
+            {new Date(sale.created_at).toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </p>
           <p className="text-center text-xs">Cashier: {sale.cashier_name}</p>
           {sale.customer_name && (
@@ -420,7 +432,13 @@ function SalesHistory() {
                     #{sale.id}
                   </td>
                   <td className="px-6 py-4 text-white text-sm">
-                    {new Date(sale.created_at).toLocaleString()}
+                    {new Date(sale.created_at).toLocaleString([], {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </td>
                   <td className="px-6 py-4 text-white text-sm">
                     {sale.cashier_name}

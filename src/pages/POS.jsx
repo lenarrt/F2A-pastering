@@ -25,7 +25,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
         <body>
           <h2>${businessName}</h2>
           <p>Receipt #${sale.id}</p>
-          <p>${new Date(sale.created_at).toLocaleString()}</p>
+          <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>         
           <p>Cashier: ${sale.cashier_name}</p>
           <div class="divider"></div>
           ${items
@@ -88,7 +88,13 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
         >
           <p className="text-center font-bold text-sm">{businessName}</p>
           <p className="text-center text-xs text-gray-600">
-            {new Date(sale.created_at).toLocaleString()}
+            {new Date(sale.created_at).toLocaleString([], {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </p>
           <p className="text-center text-xs">Cashier: {sale.cashier_name}</p>
           <div className="border-t border-dashed border-gray-400 my-2" />

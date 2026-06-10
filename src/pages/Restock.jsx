@@ -193,7 +193,7 @@ function Restock() {
                              hover:bg-gray-750 transition-colors"
                 >
                   <td className="px-6 py-4 text-white text-sm">
-                    {new Date(log.created_at).toLocaleString()}
+                    {new Date(log.created_at).toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
                   </td>
                   <td className="px-6 py-4 text-white text-sm font-medium">
                     {log.product_name}

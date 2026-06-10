@@ -8,6 +8,7 @@ import POS from './pages/POS'
 import SalesHistory from './pages/SalesHistory'
 import Restock from './pages/Restock'
 import Users from './pages/Users'
+import Settings from './pages/Settings'
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth)
@@ -31,6 +32,8 @@ function App() {
         return <Restock />
       case 'users':
         return <Users />
+      case 'settings':
+        return <Settings />
       default:
         return (
           <div className="flex items-center justify-center h-64">
