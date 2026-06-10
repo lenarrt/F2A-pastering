@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import Login from './pages/Login'
 import MainLayout from './layouts/MainLayout'
 import Dashboard from './pages/Dashboard'
+import Products from './pages/Products'
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth)
@@ -15,6 +16,7 @@ function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard': return <Dashboard />
+      case 'products': return <Products />
       default: return (
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-400 text-lg">
