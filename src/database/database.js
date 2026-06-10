@@ -160,3 +160,4 @@ const initDatabase = () => {
 initDatabase()
 
 module.exports = db
+module.exports.dbPath = dbPath

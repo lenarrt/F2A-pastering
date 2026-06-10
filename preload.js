@@ -41,4 +41,8 @@ contextBridge.exposeInMainWorld('api', {
   // Settings
   getSettings: () => ipcRenderer.invoke('settings:getAll'),
   updateSetting: (data) => ipcRenderer.invoke('settings:update', data),
+  
+  // Backup & Restore
+  exportBackup: () => ipcRenderer.invoke('backup:export'),
+  importBackup: () => ipcRenderer.invoke('backup:import'),
 })

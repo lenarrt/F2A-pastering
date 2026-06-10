@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron')
 const db = require('./database.js')
+const dbPath = db.dbPath
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
@@ -381,6 +382,47 @@ ipcMain.handle('settings:update', (event, { key, value }) => {
     db.prepare(
       'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)'
     ).run(key, value)
+    return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+// ============ BACKUP & RESTORE ============
+ipcMain.handle('backup:export', async () => {
+  try {
+    const { dialog } = require('electron')
+    const fs = require('fs')
+
+    const result = await dialog.showSaveDialog({
+      title: 'Save Backup',
+      defaultPath: `f2a-backup-${new Date().toISOString().split('T')[0]}.db`,
+      filters: [{ name: 'Database Backup', extensions: ['db'] }]
+    })
+
+    if (result.canceled) return { success: false, message: 'Cancelled' }
+
+    fs.copyFileSync(dbPath, result.filePath)
+    return { success: true, path: result.filePath }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
+ipcMain.handle('backup:import', async () => {
+  try {
+    const { dialog, app } = require('electron')
+    const fs = require('fs')
+
+    const result = await dialog.showOpenDialog({
+      title: 'Select Backup File',
+      filters: [{ name: 'Database Backup', extensions: ['db'] }],
+      properties: ['openFile']
+    })
+
+    if (result.canceled) return { success: false, message: 'Cancelled' }
+
+    fs.copyFileSync(result.filePaths[0], dbPath)
     return { success: true }
   } catch (error) {
     return { success: false, message: error.message }

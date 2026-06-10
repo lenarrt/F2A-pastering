@@ -210,13 +210,11 @@ function POS() {
   }
 
   // Filter products by search
-  const filteredProducts = products
-    .filter(
-      (p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.barcode?.includes(search)
-    )
-    .filter((p) => p.stock > 0)
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.barcode?.includes(search)
+  )
 
   // Add product to cart
   const addToCart = (product) => {
@@ -392,22 +390,51 @@ function POS() {
               {filteredProducts.map((product) => (
                 <button
                   key={product.id}
-                  onClick={() => addToCart(product)}
-                  className="bg-gray-800 border border-gray-700 hover:border-blue-500
-                             hover:bg-gray-750 rounded-xl p-4 text-left transition-all"
+                  onClick={() => product.stock > 0 && addToCart(product)}
+                  disabled={product.stock === 0}
+                  className={`border rounded-xl p-4 text-left transition-all w-full
+    ${
+      product.stock === 0
+        ? 'bg-gray-800/50 border-gray-700 cursor-not-allowed opacity-60'
+        : 'bg-gray-800 border-gray-700 hover:border-blue-500 hover:bg-gray-750 cursor-pointer'
+    }`}
                 >
-                  <p className="text-white font-medium text-sm">
-                    {product.name}
-                  </p>
+                  <div className="flex items-start justify-between mb-1">
+                    <p
+                      className={`font-medium text-sm ${
+                        product.stock === 0 ? 'text-gray-500' : 'text-white'
+                      }`}
+                    >
+                      {product.name}
+                    </p>
+                    {product.stock === 0 && (
+                      <span
+                        className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5
+                       rounded-full ml-2 shrink-0"
+                      >
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
                   <p className="text-gray-400 text-xs mt-1">
                     {product.category_name || 'Uncategorized'}
                   </p>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-green-400 font-bold">
+                    <span
+                      className={`font-bold text-sm ${
+                        product.stock === 0 ? 'text-gray-500' : 'text-green-400'
+                      }`}
+                    >
                       {product.price.toFixed(2)} den
                     </span>
-                    <span className="text-gray-500 text-xs">
-                      {product.stock} {product.unit}
+                    <span
+                      className={`text-xs ${
+                        product.stock === 0 ? 'text-red-400' : 'text-gray-500'
+                      }`}
+                    >
+                      {product.stock === 0
+                        ? 'No stock'
+                        : `${product.stock} ${product.unit}`}
                     </span>
                   </div>
                 </button>

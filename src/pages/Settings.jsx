@@ -43,6 +43,27 @@ function Settings() {
     }
   }
 
+  const handleExportBackup = async () => {
+    const result = await window.api.exportBackup()
+    if (result.success) {
+      setSuccess(`Backup saved successfully to: ${result.path}`)
+      setTimeout(() => setSuccess(''), 5000)
+    }
+  }
+
+  const handleImportBackup = async () => {
+    const confirm = window.confirm(
+      'Are you sure you want to restore a backup?\n\nThis will replace ALL current data. This cannot be undone!'
+    )
+    if (!confirm) return
+
+    const result = await window.api.importBackup()
+    if (result.success) {
+      setSuccess('Backup restored successfully! Please restart the app.')
+      setTimeout(() => setSuccess(''), 5000)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -190,6 +211,62 @@ function Settings() {
               {settings.receipt_footer || 'Your footer message here'}
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* Backup & Restore */}
+      <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+        <h3 className="text-white font-semibold text-lg mb-2">
+          💾 Backup & Restore
+        </h3>
+        <p className="text-gray-400 text-sm mb-6">
+          Keep your data safe by regularly exporting a backup to a USB drive or
+          cloud folder.
+        </p>
+
+        <div className="grid grid-cols-2 gap-4">
+          {/* Export */}
+          <div className="bg-gray-700 rounded-xl p-4">
+            <div className="text-3xl mb-2">📤</div>
+            <h4 className="text-white font-medium mb-1">Export Backup</h4>
+            <p className="text-gray-400 text-xs mb-4">
+              Save a copy of all your data to a file. Do this regularly!
+            </p>
+            <button
+              onClick={handleExportBackup}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white
+                         rounded-lg py-2 text-sm font-medium transition-colors"
+            >
+              Export Backup
+            </button>
+          </div>
+
+          {/* Import */}
+          <div className="bg-gray-700 rounded-xl p-4">
+            <div className="text-3xl mb-2">📥</div>
+            <h4 className="text-white font-medium mb-1">Restore Backup</h4>
+            <p className="text-gray-400 text-xs mb-4">
+              Restore data from a previous backup file.
+            </p>
+            <button
+              onClick={handleImportBackup}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white
+                         rounded-lg py-2 text-sm font-medium transition-colors"
+            >
+              Restore Backup
+            </button>
+          </div>
+        </div>
+
+        {/* Warning */}
+        <div
+          className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg
+                        p-3 mt-4"
+        >
+          <p className="text-yellow-400 text-xs">
+            ⚠️ Restoring a backup will replace ALL current data with the backup.
+            Make sure to export a backup first!
+          </p>
         </div>
       </div>
 

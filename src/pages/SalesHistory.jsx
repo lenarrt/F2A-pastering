@@ -212,12 +212,22 @@ function SalesHistory() {
   const handleVoid = async (id) => {
     await window.api.voidSale(id)
     setVoidConfirm(null)
-    loadData()
+    // Update the sale in state directly without reloading the whole page
+    setSales(
+      sales.map((sale) =>
+        sale.id === id ? { ...sale, payment_status: 'voided' } : sale
+      )
+    )
   }
 
   const handleMarkPaid = async (id) => {
     await window.api.markSalePaid(id)
-    loadData()
+    // Update the sale in state directly without reloading the whole page
+    setSales(
+      sales.map((sale) =>
+        sale.id === id ? { ...sale, payment_status: 'paid' } : sale
+      )
+    )
   }
 
   // Filter sales
