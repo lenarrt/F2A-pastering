@@ -7,4 +7,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: './',
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      external: [],
+    },
+  },
+  resolve: {
+    alias: {},
+  },
+  optimizeDeps: {
+    include: ['recharts', 'react-is'],
+  },
 })
