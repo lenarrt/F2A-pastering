@@ -8,32 +8,61 @@
     "build": "vite build",
     "preview": "vite preview",
     "electron": "electron .",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\""
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.f2a.plastering",
+    "productName": "F2A Plastering",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "src/database/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/icon.icns"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   },
   "author": "lenarrt",
   "license": "MIT",
   "devDependencies": {
-    "@electron/rebuild": "^4.0.4",
+    "@electron/rebuild": "^3.7.2",
     "@vitejs/plugin-react": "latest",
     "concurrently": "latest",
     "electron": "^33.3.1",
     "electron-builder": "latest",
-    "prettier": "^3.8.4",
+    "prettier": "^3.5.3",
     "vite": "latest",
     "wait-on": "latest"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.12.0",
-    "@tailwindcss/vite": "^4.3.0",
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.10.0",
-    "jsonwebtoken": "^9.0.3",
+    "@reduxjs/toolkit": "latest",
+    "bcryptjs": "latest",
+    "better-sqlite3": "latest",
+    "jsonwebtoken": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-redux": "^9.3.0",
-    "react-router-dom": "^7.17.0",
-    "react-to-print": "^3.3.0",
-    "recharts": "^3.8.1",
-    "tailwindcss": "^4.3.0"
+    "react-redux": "latest",
+    "react-router-dom": "latest",
+    "react-to-print": "latest",
+    "recharts": "latest",
+    "tailwindcss": "latest"
   }
 }

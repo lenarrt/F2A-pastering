@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -10,27 +12,40 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
     },
     titleBarStyle: 'hiddenInset',
-    title: 'F2A Plastering'
+    title: 'F2A Plastering',
+    show: false,
   })
 
-  win.loadURL('http://localhost:5173')
+  // Show window when ready to avoid white flash
+  win.once('ready-to-show', () => {
+    win.show()
+  })
+
+  if (isDev) {
+    win.loadURL('http://localhost:5173')
+    win.webContents.openDevTools({ mode: 'detach' })
+  } else {
+    win.loadFile(path.join(__dirname, 'dist/index.html'))
+  }
 }
 
 app.whenReady().then(() => {
-  // Initialize database
   require('./src/database/database.js')
-
-  // Register all IPC handlers
   require('./src/database/ipcHandlers.js')
-
   createWindow()
 })
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
   }
 })
