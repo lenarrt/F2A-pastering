@@ -43,15 +43,16 @@
   "author": "lenarrt",
   "license": "MIT",
   "devDependencies": {
-    "@electron/rebuild": "^3.7.2",
-    "@vitejs/plugin-react": "latest",
-    "concurrently": "latest",
-    "electron": "^33.3.1",
-    "electron-builder": "latest",
-    "prettier": "^3.5.3",
-    "vite": "latest",
-    "wait-on": "latest"
-  },
+  "@electron/rebuild": "^3.7.2",
+  "@tailwindcss/vite": "latest",
+  "@vitejs/plugin-react": "latest",
+  "concurrently": "latest",
+  "electron": "^33.3.1",
+  "electron-builder": "latest",
+  "prettier": "^3.5.3",
+  "vite": "latest",
+  "wait-on": "latest"
+},
   "dependencies": {
     "@reduxjs/toolkit": "latest",
     "bcryptjs": "latest",
