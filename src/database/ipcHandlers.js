@@ -158,7 +158,17 @@ ipcMain.handle('products:update', (event, { id, name, barcode, category_id, pric
 
 ipcMain.handle('products:delete', (event, id) => {
   try {
-    db.prepare('DELETE FROM products WHERE id = ?').run(id)
+    const deleteProduct = db.transaction(() => {
+      // Remove from sale items first
+      db.prepare('DELETE FROM sale_items WHERE product_id = ?').run(id)
+      // Remove from restock log
+      db.prepare('DELETE FROM restock_log WHERE product_id = ?').run(id)
+      // Remove from internal use items
+      db.prepare('DELETE FROM internal_use_items WHERE product_id = ?').run(id)
+      // Now delete the product
+      db.prepare('DELETE FROM products WHERE id = ?').run(id)
+    })
+    deleteProduct()
     return { success: true }
   } catch (error) {
     return { success: false, message: error.message }
