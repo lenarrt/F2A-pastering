@@ -20,13 +20,15 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             .total { font-weight: bold; font-size: 14px; }
             .footer { text-align: center; margin-top: 12px; font-size: 11px; }
             .discount { color: #f97316; font-size: 11px; }
+            .note { font-size: 11px; font-style: italic; }
           </style>
         </head>
         <body>
           <h2>${businessName}</h2>
           <p>Receipt #${sale.id}</p>
-          <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>         
+          <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
           <p>Cashier: ${sale.cashier_name}</p>
+          ${sale.customer_name ? `<p>Customer: ${sale.customer_name}</p>` : ''}
           <div class="divider"></div>
           ${items
             .map(
@@ -61,6 +63,32 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             <span>TOTAL</span>
             <span>${sale.total.toFixed(2)} den</span>
           </div>
+          ${
+            sale.payment_status === 'pending'
+              ? `
+          <div class="row" style="color: #f59e0b;">
+            <span>PAYMENT STATUS</span>
+            <span>PAY LATER</span>
+          </div>
+          `
+              : ''
+          } 
+          ${
+            sale.note
+              ? `
+            <div class="divider"></div>
+            <p style="font-size: 11px;">📝 Note: ${sale.note}</p>
+          `
+              : ''
+          }
+          ${
+            sale.note
+              ? `
+            <div class="divider"></div>
+            <p class="note">📝 Note: ${sale.note}</p>
+          `
+              : ''
+          }
           <div class="divider"></div>
           <div class="footer">${receiptFooter}</div>
         </body>
@@ -97,6 +125,11 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             })}
           </p>
           <p className="text-center text-xs">Cashier: {sale.cashier_name}</p>
+          {sale.customer_name && (
+            <p className="text-center text-xs">
+              Customer: {sale.customer_name}
+            </p>
+          )}
           <div className="border-t border-dashed border-gray-400 my-2" />
           {items.map((item, i) => (
             <div key={i}>
@@ -133,6 +166,19 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             <span>TOTAL</span>
             <span>{sale.total.toFixed(2)} den</span>
           </div>
+          {sale.payment_status === 'pending' && (
+            <p className="text-center text-yellow-600 font-bold text-xs mt-1">
+              ⏳ PAYMENT PENDING
+            </p>
+          )}
+          {sale.note && (
+            <>
+              <div className="border-t border-dashed border-gray-400 my-2" />
+              <p className="text-xs text-gray-600 italic">
+                📝 Note: {sale.note}
+              </p>
+            </>
+          )}
           <p className="text-center text-xs text-gray-500 mt-2">
             {receiptFooter}
           </p>
@@ -178,7 +224,6 @@ function POS() {
   const [customers, setCustomers] = useState([])
   const searchRef = useRef()
 
-  // Calculate final price for a cart item after discount
   const calculateItemTotal = (item) => {
     if (!item.discount_type || !item.discount_value) {
       return item.price * item.quantity
@@ -209,14 +254,12 @@ function POS() {
     setLoading(false)
   }
 
-  // Filter products by search
   const filteredProducts = products.filter(
     (p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.barcode?.includes(search)
   )
 
-  // Add product to cart
   const addToCart = (product) => {
     const existing = cart.find((item) => item.product_id === product.id)
     if (existing) {
@@ -247,7 +290,6 @@ function POS() {
     searchRef.current?.focus()
   }
 
-  // Update quantity in cart
   const updateQuantity = (product_id, quantity) => {
     if (quantity <= 0) {
       removeFromCart(product_id)
@@ -262,7 +304,6 @@ function POS() {
     )
   }
 
-  // Update discount on a cart item
   const updateDiscount = (product_id, discount_type, discount_value) => {
     setCart(
       cart.map((item) =>
@@ -277,15 +318,12 @@ function POS() {
     )
   }
 
-  // Remove from cart
   const removeFromCart = (product_id) => {
     setCart(cart.filter((item) => item.product_id !== product_id))
   }
 
-  // Calculate total
   const total = cart.reduce((sum, item) => sum + calculateItemTotal(item), 0)
 
-  // Complete sale
   const handleCheckout = async () => {
     if (cart.length === 0) return
     setCheckingOut(true)
@@ -309,9 +347,7 @@ function POS() {
       const result = await window.api.createSale({
         user_id: user.id,
         customer_id: customerMode ? selectedCustomer?.id : null,
-        customer_name: customerMode
-          ? selectedCustomer?.name || manualCustomerName
-          : null,
+        customer_name: manualCustomerName || selectedCustomer?.name || null,
         total,
         discount_total,
         items,
@@ -358,7 +394,6 @@ function POS() {
     <div className="flex gap-6 h-[calc(100vh-140px)]">
       {/* Left — Product Search */}
       <div className="flex-1 flex flex-col gap-4">
-        {/* Search Bar */}
         <div>
           <input
             ref={searchRef}
@@ -371,7 +406,6 @@ function POS() {
           />
         </div>
 
-        {/* Products Grid */}
         <div className="flex-1 overflow-y-auto">
           {search === '' ? (
             <div className="text-center py-16">
@@ -393,11 +427,11 @@ function POS() {
                   onClick={() => product.stock > 0 && addToCart(product)}
                   disabled={product.stock === 0}
                   className={`border rounded-xl p-4 text-left transition-all w-full
-    ${
-      product.stock === 0
-        ? 'bg-gray-800/50 border-gray-700 cursor-not-allowed opacity-60'
-        : 'bg-gray-800 border-gray-700 hover:border-blue-500 hover:bg-gray-750 cursor-pointer'
-    }`}
+                    ${
+                      product.stock === 0
+                        ? 'bg-gray-800/50 border-gray-700 cursor-not-allowed opacity-60'
+                        : 'bg-gray-800 border-gray-700 hover:border-blue-500 hover:bg-gray-750 cursor-pointer'
+                    }`}
                 >
                   <div className="flex items-start justify-between mb-1">
                     <p
@@ -410,7 +444,7 @@ function POS() {
                     {product.stock === 0 && (
                       <span
                         className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5
-                       rounded-full ml-2 shrink-0"
+                                       rounded-full ml-2 shrink-0"
                       >
                         Out of Stock
                       </span>
@@ -471,7 +505,6 @@ function POS() {
           ) : (
             cart.map((item) => (
               <div key={item.product_id} className="bg-gray-700 rounded-lg p-3">
-                {/* Product Name + Remove */}
                 <div className="flex justify-between items-start mb-2">
                   <p className="text-white text-sm font-medium flex-1 pr-2">
                     {item.product_name}
@@ -484,7 +517,6 @@ function POS() {
                   </button>
                 </div>
 
-                {/* Quantity + Price */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <button
@@ -529,7 +561,6 @@ function POS() {
                   </div>
                 </div>
 
-                {/* Discount Controls */}
                 <div className="flex gap-2 mt-1">
                   <select
                     value={item.discount_type || ''}
@@ -611,19 +642,19 @@ function POS() {
             </div>
           )}
 
-          {/* Customer Name — always visible, not just for Pay Later */}
+          {/* Customer Name */}
           {!isInternalUse && (
             <input
               value={manualCustomerName}
               onChange={(e) => setManualCustomerName(e.target.value)}
               placeholder="Customer name (optional)..."
               className={`w-full bg-gray-700 text-white rounded-lg px-3 py-2
-               text-sm outline-none placeholder-gray-500
-               ${
-                 payLater
-                   ? 'focus:ring-2 focus:ring-yellow-500'
-                   : 'focus:ring-2 focus:ring-blue-500'
-               }`}
+                         text-sm outline-none placeholder-gray-500
+                         ${
+                           payLater
+                             ? 'focus:ring-2 focus:ring-yellow-500'
+                             : 'focus:ring-2 focus:ring-blue-500'
+                         }`}
             />
           )}
 

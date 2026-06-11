@@ -19,6 +19,7 @@ function Login() {
 
       if (result.success) {
         dispatch(loginSuccess({ user: result.user, token: result.token }))
+        if (window.resetPage) window.resetPage()
       } else {
         setError(result.message)
       }
@@ -32,18 +33,19 @@ function Login() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900">
       <div className="bg-gray-800 rounded-2xl p-8 w-full max-w-md shadow-2xl">
-
         {/* Logo / Title */}
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">🏗️</div>
-          <h1 className="text-3xl font-bold text-white">F2A Plastering</h1>
+          <h1 className="text-3xl font-bold text-white">F2A putz Company</h1>
           <p className="text-gray-400 mt-2">Sign in to continue</p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-500/20 border border-red-500 text-red-400 
-                          rounded-lg p-3 mb-6 text-sm text-center">
+          <div
+            className="bg-red-500/20 border border-red-500 text-red-400 
+                          rounded-lg p-3 mb-6 text-sm text-center"
+          >
             {error}
           </div>
         )}

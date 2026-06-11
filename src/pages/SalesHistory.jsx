@@ -59,13 +59,21 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
             <span>TOTAL</span>
             <span>${sale.total.toFixed(2)} den</span>
           </div>
-          ${
-            sale.payment_status === 'pending'
-              ? `
+         ${
+           sale.payment_status === 'pending'
+             ? `
             <div class="row" style="color: #f59e0b;">
               <span>PAYMENT STATUS</span>
               <span>PAY LATER</span>
             </div>
+          `
+             : ''
+         }
+          ${
+            sale.note
+              ? `
+            <div class="divider"></div>
+            <p style="font-size: 11px; font-style: italic;">📝 Note: ${sale.note}</p>
           `
               : ''
           }
@@ -158,6 +166,14 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
             <p className="text-center text-yellow-600 font-bold text-xs mt-1">
               ⏳ PAYMENT PENDING
             </p>
+          )}
+          {sale.note && (
+            <>
+              <div className="border-t border-dashed border-gray-400 my-2" />
+              <p className="text-xs text-gray-600 italic">
+                📝 Note: {sale.note}
+              </p>
+            </>
           )}
         </div>
 
@@ -460,9 +476,16 @@ function SalesHistory() {
                   <td className="px-6 py-4 text-white text-sm">
                     {sale.cashier_name}
                   </td>
-                  <td className="px-6 py-4 text-white text-sm">
-                    {sale.customer_name || (
-                      <span className="text-gray-500">—</span>
+                  <td className="px-6 py-4">
+                    <p className="text-white text-sm">
+                      {sale.customer_name || (
+                        <span className="text-gray-500">—</span>
+                      )}
+                    </p>
+                    {sale.note && (
+                      <p className="text-gray-400 text-xs mt-0.5">
+                        📝 {sale.note}
+                      </p>
                     )}
                   </td>
                   <td className="px-6 py-4">

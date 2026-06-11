@@ -16,6 +16,8 @@ function App() {
   const { isAuthenticated } = useSelector((state) => state.auth)
   const [currentPage, setCurrentPage] = useState('dashboard')
 
+  // Reset page to dashboard on login
+  window.resetPage = () => setCurrentPage('dashboard')
   if (!isAuthenticated) {
     return <Login />
   }

@@ -357,12 +357,12 @@ ipcMain.handle('internal:getAll', () => {
 })
 
 // ============ RESTOCK ============
-ipcMain.handle('restock:create', (event, { product_id, quantity, note }) => {
+ipcMain.handle('restock:create', (event, { product_id, quantity, buying_price, note }) => {
   try {
     const restock = db.transaction(() => {
       db.prepare(
-        'INSERT INTO restock_log (product_id, quantity, note) VALUES (?, ?, ?)'
-      ).run(product_id, quantity, note || null)
+        'INSERT INTO restock_log (product_id, quantity, buying_price, note) VALUES (?, ?, ?, ?)'
+      ).run(product_id, quantity, buying_price || null, note || null)
       db.prepare(
         'UPDATE products SET stock = stock + ? WHERE id = ?'
       ).run(quantity, product_id)

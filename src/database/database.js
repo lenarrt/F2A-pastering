@@ -120,15 +120,16 @@ const initDatabase = () => {
 
   // Restock log table
   db.exec(`
-    CREATE TABLE IF NOT EXISTS restock_log (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      product_id INTEGER NOT NULL,
-      quantity INTEGER NOT NULL,
-      note TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (product_id) REFERENCES products(id)
-    )
-  `)
+  CREATE TABLE IF NOT EXISTS restock_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    buying_price REAL DEFAULT NULL,
+    note TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+  )
+`)
 
   // Settings table
   db.exec(`

@@ -8,6 +8,7 @@ function Restock() {
   const [form, setForm] = useState({
     product_id: '',
     quantity: '',
+    buying_price: '',
     note: '',
   })
   const [error, setError] = useState('')
@@ -41,6 +42,7 @@ function Restock() {
     const result = await window.api.restockProduct({
       product_id: parseInt(form.product_id),
       quantity: parseInt(form.quantity),
+      buying_price: form.buying_price ? parseFloat(form.buying_price) : null,
       note: form.note || null,
     })
 
@@ -174,6 +176,9 @@ function Restock() {
                 Quantity Added
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
+                Buying Price
+              </th>
+              <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
                 Note
               </th>
             </tr>
@@ -193,7 +198,13 @@ function Restock() {
                              hover:bg-gray-750 transition-colors"
                 >
                   <td className="px-6 py-4 text-white text-sm">
-                    {new Date(log.created_at).toLocaleString([], { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    {new Date(log.created_at).toLocaleString([], {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </td>
                   <td className="px-6 py-4 text-white text-sm font-medium">
                     {log.product_name}
@@ -202,6 +213,11 @@ function Restock() {
                     <span className="text-green-400 font-semibold">
                       +{log.quantity}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-gray-400 text-sm">
+                    {log.buying_price
+                      ? `${log.buying_price.toFixed(2)} den`
+                      : '—'}
                   </td>
                   <td className="px-6 py-4 text-gray-400 text-sm">
                     {log.note || '—'}
@@ -297,6 +313,29 @@ function Restock() {
                     {selectedProduct.unit}
                   </p>
                 )}
+              </div>
+
+              {/* Buying Price */}
+              <div>
+                <label className="text-gray-400 text-sm mb-1 block">
+                  Buying Price per unit (optional)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.buying_price}
+                  onChange={(e) =>
+                    setForm({ ...form, buying_price: e.target.value })
+                  }
+                  placeholder="e.g. 850.00"
+                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
+               outline-none focus:ring-2 focus:ring-blue-500
+               placeholder-gray-500"
+                />
+                <p className="text-gray-500 text-xs mt-1">
+                  For your records only — not shown to customers
+                </p>
               </div>
 
               {/* Note */}

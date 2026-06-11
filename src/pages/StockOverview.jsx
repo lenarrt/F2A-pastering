@@ -101,6 +101,9 @@ function StockOverview() {
     const result = await window.api.restockProduct({
       product_id: restockProduct.id,
       quantity: parseInt(restockForm.quantity),
+      buying_price: restockForm.buying_price
+        ? parseFloat(restockForm.buying_price)
+        : null,
       note: restockForm.note || null,
     })
 
@@ -409,6 +412,29 @@ function StockOverview() {
                     {restockProduct.unit}
                   </p>
                 )}
+              </div>
+
+              {/* Buying Price */}
+              <div>
+                <label className="text-gray-400 text-sm mb-1 block">
+                  Buying Price per unit (optional)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={restockForm.buying_price || ''}
+                  onChange={(e) =>
+                    setRestockForm({
+                      ...restockForm,
+                      buying_price: e.target.value,
+                    })
+                  }
+                  placeholder="e.g. 850.00"
+                  className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
+               outline-none focus:ring-2 focus:ring-blue-500
+               placeholder-gray-500"
+                />
               </div>
 
               {/* Note */}

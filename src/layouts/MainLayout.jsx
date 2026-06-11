@@ -221,7 +221,7 @@ function MainLayout({ currentPage, setCurrentPage, children }) {
             <span className="text-3xl">🏗️</span>
             <div>
               <h1 className="font-bold text-white text-lg leading-tight">
-                F2A Plastering
+                F2A putz Company
               </h1>
               <p className="text-gray-400 text-xs">Inventory & POS</p>
             </div>
