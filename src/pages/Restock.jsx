@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../context/languageContext'
 
 function Restock() {
+  const { t } = useLanguage()
   const [products, setProducts] = useState([])
   const [restockLog, setRestockLog] = useState([])
   const [loading, setLoading] = useState(true)
@@ -31,11 +33,11 @@ function Restock() {
 
   const handleSubmit = async () => {
     if (!form.product_id || !form.quantity) {
-      setError('Please select a product and enter a quantity')
+      setError(t.selectProductAndQuantity)
       return
     }
     if (parseInt(form.quantity) <= 0) {
-      setError('Quantity must be greater than 0')
+      setError(t.quantityGreaterThanZero)
       return
     }
 
@@ -48,7 +50,7 @@ function Restock() {
 
     if (result.success) {
       setSuccess('Stock updated successfully!')
-      setForm({ product_id: '', quantity: '', note: '' })
+      setForm({ product_id: '', quantity: '', buying_price: '', note: '' })
       setError('')
       setShowModal(false)
       loadData()
@@ -75,17 +77,15 @@ function Restock() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Restock</h2>
-          <p className="text-gray-400 mt-1">
-            Log incoming deliveries and update stock
-          </p>
+          <h2 className="text-2xl font-bold text-white">{t.restock}</h2>
+          <p className="text-gray-400 mt-1">{t.restockDesc}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2
                      rounded-lg text-sm font-medium transition-colors"
         >
-          + Log Delivery
+          {t.logDelivery}
         </button>
       </div>
 
@@ -102,16 +102,15 @@ function Restock() {
       {/* Low Stock Products */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
         <h3 className="text-white font-semibold mb-4">
-          Products Needing Restock
+          {t.productsNeedingRestock}
           <span className="ml-2 text-sm text-gray-400 font-normal">
-            (at or below threshold)
+            {t.atOrBelowThreshold}
           </span>
         </h3>
-        {products.filter((p) => p.stock <= p.low_stock_threshold).length ===
-        0 ? (
+        {products.filter((p) => p.stock <= p.low_stock_threshold).length === 0 ? (
           <div className="text-center py-6">
             <p className="text-4xl mb-2">✅</p>
-            <p className="text-gray-400">All products are well stocked!</p>
+            <p className="text-gray-400">{t.allProductsWellStocked}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
@@ -126,7 +125,7 @@ function Restock() {
                     {product.name}
                   </p>
                   <p className="text-gray-400 text-xs mt-1">
-                    {product.category_name || 'Uncategorized'}
+                    {product.category_name || t.uncategorized}
                   </p>
                   <div className="flex items-center justify-between mt-3">
                     <span
@@ -134,13 +133,14 @@ function Restock() {
                         product.stock === 0 ? 'text-red-400' : 'text-yellow-400'
                       }`}
                     >
-                      {product.stock} {product.unit} left
+                      {product.stock} {product.unit} {t.stockLeft}
                     </span>
                     <button
                       onClick={() => {
                         setForm({
                           product_id: product.id.toString(),
                           quantity: '',
+                          buying_price: '',
                           note: '',
                         })
                         setShowModal(true)
@@ -149,7 +149,7 @@ function Restock() {
                                  hover:text-white px-3 py-1 rounded-lg text-xs
                                  font-medium transition-colors"
                     >
-                      Restock
+                      {t.quickRestock}
                     </button>
                   </div>
                 </div>
@@ -161,33 +161,33 @@ function Restock() {
       {/* Restock Log Table */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-700">
-          <h3 className="text-white font-semibold">Delivery History</h3>
+          <h3 className="text-white font-semibold">{t.deliveryHistory}</h3>
         </div>
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-700">
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Date & Time
+                {t.dateTime}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
                 Product
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Quantity Added
+                {t.quantityAdded}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Buying Price
+                {t.price}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Note
+                {t.note}
               </th>
             </tr>
           </thead>
           <tbody>
             {restockLog.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center text-gray-400 py-12">
-                  No deliveries logged yet
+                <td colSpan={5} className="text-center text-gray-400 py-12">
+                  {t.noDeliveriesYet}
                 </td>
               </tr>
             ) : (
@@ -236,7 +236,7 @@ function Restock() {
                         justify-center z-50"
         >
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-white font-bold text-xl mb-6">Log Delivery</h3>
+            <h3 className="text-white font-bold text-xl mb-6">{t.logDeliveryBtn}</h3>
 
             {error && (
               <div
@@ -261,10 +261,10 @@ function Restock() {
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                              outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select a product...</option>
+                  <option value="">{t.selectProduct}</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} (current stock: {p.stock} {p.unit})
+                      {p.name} ({t.currentStock}: {p.stock} {p.unit})
                     </option>
                   ))}
                 </select>
@@ -273,7 +273,7 @@ function Restock() {
               {/* Current Stock Info */}
               {selectedProduct && (
                 <div className="bg-gray-700 rounded-lg p-3 flex justify-between">
-                  <span className="text-gray-400 text-sm">Current Stock</span>
+                  <span className="text-gray-400 text-sm">{t.currentStock}</span>
                   <span
                     className={`font-semibold text-sm ${
                       selectedProduct.stock === 0
@@ -292,7 +292,7 @@ function Restock() {
               {/* Quantity */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Quantity to Add *
+                  {t.quantityToAdd}
                 </label>
                 <input
                   type="number"
@@ -308,7 +308,7 @@ function Restock() {
                 />
                 {selectedProduct && form.quantity && (
                   <p className="text-green-400 text-xs mt-1">
-                    New stock will be:{' '}
+                    {t.newStockWillBe}{' '}
                     {selectedProduct.stock + parseInt(form.quantity || 0)}{' '}
                     {selectedProduct.unit}
                   </p>
@@ -318,7 +318,7 @@ function Restock() {
               {/* Buying Price */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Buying Price per unit (optional)
+                  {t.buyingPriceOptional}
                 </label>
                 <input
                   type="number"
@@ -333,20 +333,18 @@ function Restock() {
                outline-none focus:ring-2 focus:ring-blue-500
                placeholder-gray-500"
                 />
-                <p className="text-gray-500 text-xs mt-1">
-                  For your records only — not shown to customers
-                </p>
+                <p className="text-gray-500 text-xs mt-1">{t.buyingPriceNote}</p>
               </div>
 
               {/* Note */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Note (optional)
+                  {t.noteOptional}
                 </label>
                 <input
                   value={form.note}
                   onChange={(e) => setForm({ ...form, note: e.target.value })}
-                  placeholder="e.g. Delivery from supplier ABC"
+                  placeholder={t.deliveryFromSupplier}
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                              outline-none focus:ring-2 focus:ring-blue-500
                              placeholder-gray-500"
@@ -359,19 +357,19 @@ function Restock() {
                 onClick={() => {
                   setShowModal(false)
                   setError('')
-                  setForm({ product_id: '', quantity: '', note: '' })
+                  setForm({ product_id: '', quantity: '', buying_price: '', note: '' })
                 }}
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={handleSubmit}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Log Delivery
+                {t.logDeliveryBtn}
               </button>
             </div>
           </div>

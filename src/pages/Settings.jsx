@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../context/languageContext'
 
 function Settings() {
   const [settings, setSettings] = useState({
@@ -9,6 +10,7 @@ function Settings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState('')
+  const { language, changeLanguage, t } = useLanguage()
 
   useEffect(() => {
     loadSettings()
@@ -34,7 +36,7 @@ function Settings() {
         }),
         window.api.updateSetting({ key: 'tax_rate', value: settings.tax_rate }),
       ])
-      setSuccess('Settings saved successfully!')
+      setSuccess(t.settingsSaved)
       setTimeout(() => setSuccess(''), 3000)
     } catch (error) {
       console.error('Failed to save settings:', error)
@@ -46,20 +48,18 @@ function Settings() {
   const handleExportBackup = async () => {
     const result = await window.api.exportBackup()
     if (result.success) {
-      setSuccess(`Backup saved successfully to: ${result.path}`)
+      setSuccess(`${t.backupSaved} ${result.path}`)
       setTimeout(() => setSuccess(''), 5000)
     }
   }
 
   const handleImportBackup = async () => {
-    const confirm = window.confirm(
-      'Are you sure you want to restore a backup?\n\nThis will replace ALL current data. This cannot be undone!'
-    )
+    const confirm = window.confirm(t.restoreConfirm)
     if (!confirm) return
 
     const result = await window.api.importBackup()
     if (result.success) {
-      setSuccess('Backup restored successfully! Please restart the app.')
+      setSuccess(t.backupRestored)
       setTimeout(() => setSuccess(''), 5000)
     }
   }
@@ -76,8 +76,8 @@ function Settings() {
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white">Settings</h2>
-        <p className="text-gray-400 mt-1">Configure your business details</p>
+        <h2 className="text-2xl font-bold text-white">{t.settings}</h2>
+        <p className="text-gray-400 mt-1">{t.settingsDesc}</p>
       </div>
 
       {/* Success Message */}
@@ -92,8 +92,38 @@ function Settings() {
 
       {/* Business Details */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 space-y-4">
+        {/* Language Toggle */}
+        <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
+          <h3 className="text-white font-semibold text-lg mb-4">
+            🌐 {t.language}
+          </h3>
+          <div className="flex gap-3">
+            <button
+              onClick={() => changeLanguage('en')}
+              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-colors
+                  ${
+                    language === 'en'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  }`}
+            >
+              🇬🇧 English
+            </button>
+            <button
+              onClick={() => changeLanguage('al')}
+              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-colors
+                  ${
+                    language === 'al'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                  }`}
+            >
+              🇦🇱 Shqip
+            </button>
+          </div>
+        </div>
         <h3 className="text-white font-semibold text-lg mb-4">
-          🏢 Business Details
+          {t.businessDetails}
         </h3>
 
         {/* Business Name */}
@@ -111,15 +141,13 @@ function Settings() {
                        outline-none focus:ring-2 focus:ring-blue-500
                        placeholder-gray-500"
           />
-          <p className="text-gray-500 text-xs mt-1">
-            Appears on all printed receipts
-          </p>
+          <p className="text-gray-500 text-xs mt-1">{t.businessNameAppears}</p>
         </div>
 
         {/* Tax Rate */}
         <div>
           <label className="text-gray-400 text-sm mb-1 block">
-            Tax Rate (%)
+            {t.taxRate}
           </label>
           <input
             type="number"
@@ -133,22 +161,20 @@ function Settings() {
             className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                        outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className="text-gray-500 text-xs mt-1">
-            Set to 0 if prices already include tax
-          </p>
+          <p className="text-gray-500 text-xs mt-1">{t.taxRateNote}</p>
         </div>
       </div>
 
       {/* Receipt Settings */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 space-y-4">
         <h3 className="text-white font-semibold text-lg mb-4">
-          🧾 Receipt Settings
+          {t.receiptSettings}
         </h3>
 
         {/* Receipt Footer */}
         <div>
           <label className="text-gray-400 text-sm mb-1 block">
-            Receipt Footer Message
+            {t.receiptFooterMessage}
           </label>
           <textarea
             value={settings.receipt_footer}
@@ -161,15 +187,13 @@ function Settings() {
                        outline-none focus:ring-2 focus:ring-blue-500
                        placeholder-gray-500 resize-none"
           />
-          <p className="text-gray-500 text-xs mt-1">
-            Printed at the bottom of every receipt
-          </p>
+          <p className="text-gray-500 text-xs mt-1">{t.receiptFooterNote}</p>
         </div>
 
         {/* Receipt Preview */}
         <div>
           <label className="text-gray-400 text-sm mb-2 block">
-            Receipt Preview
+            {t.receiptPreview}
           </label>
           <div
             className="bg-white text-black rounded-lg p-4 font-mono text-xs
@@ -204,7 +228,7 @@ function Settings() {
             </div>
             {parseFloat(settings.tax_rate) > 0 && (
               <p className="text-center text-xs text-gray-500 mt-1">
-                Includes {settings.tax_rate}% tax
+                {t.includesTax.replace('%', settings.tax_rate)}
               </p>
             )}
             <p className="text-center text-xs text-gray-500 mt-2">
@@ -217,43 +241,36 @@ function Settings() {
       {/* Backup & Restore */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
         <h3 className="text-white font-semibold text-lg mb-2">
-          💾 Backup & Restore
+          {t.backupRestore}
         </h3>
-        <p className="text-gray-400 text-sm mb-6">
-          Keep your data safe by regularly exporting a backup to a USB drive or
-          cloud folder.
-        </p>
+        <p className="text-gray-400 text-sm mb-6">{t.backupDesc}</p>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Export */}
           <div className="bg-gray-700 rounded-xl p-4">
             <div className="text-3xl mb-2">📤</div>
-            <h4 className="text-white font-medium mb-1">Export Backup</h4>
-            <p className="text-gray-400 text-xs mb-4">
-              Save a copy of all your data to a file. Do this regularly!
-            </p>
+            <h4 className="text-white font-medium mb-1">{t.exportBackup}</h4>
+            <p className="text-gray-400 text-xs mb-4">{t.exportBackupDesc}</p>
             <button
               onClick={handleExportBackup}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white
                          rounded-lg py-2 text-sm font-medium transition-colors"
             >
-              Export Backup
+              {t.exportBackup}
             </button>
           </div>
 
           {/* Import */}
           <div className="bg-gray-700 rounded-xl p-4">
             <div className="text-3xl mb-2">📥</div>
-            <h4 className="text-white font-medium mb-1">Restore Backup</h4>
-            <p className="text-gray-400 text-xs mb-4">
-              Restore data from a previous backup file.
-            </p>
+            <h4 className="text-white font-medium mb-1">{t.restoreBackup}</h4>
+            <p className="text-gray-400 text-xs mb-4">{t.restoreBackupDesc}</p>
             <button
               onClick={handleImportBackup}
               className="w-full bg-orange-600 hover:bg-orange-700 text-white
                          rounded-lg py-2 text-sm font-medium transition-colors"
             >
-              Restore Backup
+              {t.restoreBackup}
             </button>
           </div>
         </div>
@@ -263,35 +280,30 @@ function Settings() {
           className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg
                         p-3 mt-4"
         >
-          <p className="text-yellow-400 text-xs">
-            ⚠️ Restoring a backup will replace ALL current data with the backup.
-            Make sure to export a backup first!
-          </p>
+          <p className="text-yellow-400 text-xs">{t.restoreWarning}</p>
         </div>
       </div>
 
       {/* App Info */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-        <h3 className="text-white font-semibold text-lg mb-4">
-          ℹ️ App Information
-        </h3>
+        <h3 className="text-white font-semibold text-lg mb-4">{t.appInfo}</h3>
         <div className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-gray-400 text-sm">App Name</span>
+            <span className="text-gray-400 text-sm">{t.appName}</span>
             <span className="text-white text-sm">F2A Plastering</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400 text-sm">Version</span>
+            <span className="text-gray-400 text-sm">{t.version}</span>
             <span className="text-white text-sm">1.0.0</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400 text-sm">Built with</span>
+            <span className="text-gray-400 text-sm">{t.builtWith}</span>
             <span className="text-white text-sm">
               Electron + React + SQLite
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400 text-sm">Developer</span>
+            <span className="text-gray-400 text-sm">{t.developer}</span>
             <span className="text-white text-sm">lenarrt</span>
           </div>
         </div>
@@ -305,7 +317,7 @@ function Settings() {
                    disabled:cursor-not-allowed text-white font-semibold
                    rounded-xl py-3 transition-colors"
       >
-        {saving ? 'Saving...' : 'Save Settings'}
+        {saving ? t.saving : t.saveSettings}
       </button>
     </div>
   )

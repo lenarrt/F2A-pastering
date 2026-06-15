@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useLanguage } from '../context/languageContext'
 
-// Stat Card Component
 function StatCard({ title, value, subtitle, color, icon }) {
   return (
     <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -15,14 +15,14 @@ function StatCard({ title, value, subtitle, color, icon }) {
   )
 }
 
-// Low Stock Alert Card
 function LowStockCard({ product }) {
+  const { t } = useLanguage()
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0">
       <div>
         <p className="text-white text-sm font-medium">{product.name}</p>
         <p className="text-gray-400 text-xs">
-          {product.category_name || 'No category'}
+          {product.category_name || t.noCategory}
         </p>
       </div>
       <div className="text-right">
@@ -43,6 +43,7 @@ function LowStockCard({ product }) {
 
 function Dashboard() {
   const { user } = useSelector((state) => state.auth)
+  const { t } = useLanguage()
   const [products, setProducts] = useState([])
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
@@ -66,7 +67,6 @@ function Dashboard() {
     }
   }
 
-  // Calculate stats
   const today = new Date().toDateString()
 
   const todaySales = sales.filter(
@@ -81,6 +81,10 @@ function Dashboard() {
 
   const outOfStockProducts = products.filter((product) => product.stock === 0)
 
+  const hour = new Date().getHours()
+  const greeting =
+    hour < 12 ? t.goodMorning : hour < 17 ? t.goodAfternoon : t.goodEvening
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -94,16 +98,9 @@ function Dashboard() {
       {/* Welcome Message */}
       <div>
         <h2 className="text-2xl font-bold text-white">
-          Good{' '}
-          {new Date().getHours() < 12
-            ? 'morning'
-            : new Date().getHours() < 17
-              ? 'afternoon'
-              : 'evening'}
-          , {user?.name}! 👋
+          {greeting}, {user?.name}! 👋
         </h2>
         <p className="text-gray-400 mt-1">
-          Here's what's happening today —{' '}
           {new Date().toLocaleDateString('en-GB', {
             weekday: 'long',
             year: 'numeric',
@@ -116,30 +113,30 @@ function Dashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Today's Sales"
+          title={t.todaySales}
           value={todaySales.length}
-          subtitle="transactions today"
+          subtitle={t.transactionsToday}
           color="text-blue-400"
           icon="🛒"
         />
         <StatCard
-          title="Today's Revenue"
+          title={t.todayRevenue}
           value={`${todayRevenue.toFixed(2)} den`}
-          subtitle="total earned today"
+          subtitle={t.totalEarnedToday}
           color="text-green-400"
           icon="💰"
         />
         <StatCard
-          title="Total Products"
+          title={t.totalProducts}
           value={products.length}
-          subtitle="products in catalog"
+          subtitle={t.productsInCatalogDash}
           color="text-purple-400"
           icon="📦"
         />
         <StatCard
-          title="Low Stock Alerts"
+          title={t.lowStockAlerts}
           value={lowStockProducts.length}
-          subtitle={`${outOfStockProducts.length} out of stock`}
+          subtitle={`${outOfStockProducts.length} ${t.outOfStockCount2}`}
           color={
             lowStockProducts.length > 0 ? 'text-yellow-400' : 'text-green-400'
           }
@@ -152,20 +149,18 @@ function Dashboard() {
         {/* Low Stock Products */}
         <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-semibold">Low Stock Alerts</h3>
+            <h3 className="text-white font-semibold">{t.lowStockAlerts}</h3>
             <span
-              className="bg-yellow-400/20 text-yellow-400 text-xs 
+              className="bg-yellow-400/20 text-yellow-400 text-xs
                              font-medium px-2 py-1 rounded-full"
             >
-              {lowStockProducts.length} items
+              {lowStockProducts.length} {t.items}
             </span>
           </div>
           {lowStockProducts.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-4xl mb-2">✅</p>
-              <p className="text-gray-400 text-sm">
-                All products are well stocked!
-              </p>
+              <p className="text-gray-400 text-sm">{t.allProductsStocked}</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-700">
@@ -179,25 +174,25 @@ function Dashboard() {
         {/* Recent Sales */}
         <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-semibold">Recent Sales</h3>
+            <h3 className="text-white font-semibold">{t.recentSales}</h3>
             <span
-              className="bg-blue-400/20 text-blue-400 text-xs 
+              className="bg-blue-400/20 text-blue-400 text-xs
                              font-medium px-2 py-1 rounded-full"
             >
-              Today
+              {t.today}
             </span>
           </div>
           {todaySales.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-4xl mb-2">🛒</p>
-              <p className="text-gray-400 text-sm">No sales yet today</p>
+              <p className="text-gray-400 text-sm">{t.noSalesToday}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {todaySales.slice(0, 6).map((sale) => (
                 <div
                   key={sale.id}
-                  className="flex items-center justify-between py-2 
+                  className="flex items-center justify-between py-2
                              border-b border-gray-700 last:border-0"
                 >
                   <div>
@@ -205,7 +200,7 @@ function Dashboard() {
                       Sale #{sale.id}
                     </p>
                     <p className="text-gray-400 text-xs">
-                      by {sale.cashier_name} · {sale.items?.length} items
+                      {t.by} {sale.cashier_name} · {sale.items?.length} {t.items}
                     </p>
                   </div>
                   <span className="text-green-400 font-semibold text-sm">

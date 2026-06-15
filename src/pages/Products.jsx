@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../context/languageContext'
 
 // Modal for adding/editing a product
 function ProductModal({ product, categories, onSave, onClose }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     name: product?.name || '',
     barcode: product?.barcode || '',
@@ -19,7 +21,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
 
   const handleSubmit = async () => {
     if (!form.name || !form.price) {
-      setError('Name and price are required')
+      setError(t.nameAndPriceRequired)
       return
     }
     await onSave({
@@ -36,7 +38,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
         <h3 className="text-white font-bold text-xl mb-6">
-          {product ? 'Edit Product' : 'Add New Product'}
+          {product ? t.editProduct : t.addProduct}
         </h3>
 
         {error && (
@@ -50,7 +52,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Name */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              Product Name *
+              {t.productName} *
             </label>
             <input
               name="name"
@@ -66,7 +68,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Barcode */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              Barcode (optional)
+              {t.barcode} (optional)
             </label>
             <input
               name="barcode"
@@ -82,7 +84,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Category + Unit in a row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">Category</label>
+              <label className="text-gray-400 text-sm mb-1 block">{t.category}</label>
               <select
                 name="category_id"
                 value={form.category_id}
@@ -90,14 +92,14 @@ function ProductModal({ product, categories, onSave, onClose }) {
                 className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                            outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">No category</option>
+                <option value="">{t.noCategory}</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">Unit</label>
+              <label className="text-gray-400 text-sm mb-1 block">{t.unit}</label>
               <select
                 name="unit"
                 value={form.unit}
@@ -119,7 +121,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Price + Stock in a row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-gray-400 text-sm mb-1 block">Price (den ) *</label>
+              <label className="text-gray-400 text-sm mb-1 block">{t.price} (den) *</label>
               <input
                 name="price"
                 type="number"
@@ -135,7 +137,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
             </div>
             <div>
               <label className="text-gray-400 text-sm mb-1 block">
-                Initial Stock
+                {t.initialStock}
               </label>
               <input
                 name="stock"
@@ -152,7 +154,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
           {/* Low Stock Threshold */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              Low Stock Alert Threshold
+              {t.lowStockThreshold}
             </label>
             <input
               name="low_stock_threshold"
@@ -163,9 +165,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
               className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                          outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-gray-500 text-xs mt-1">
-              You'll be alerted when stock drops below this number
-            </p>
+            <p className="text-gray-500 text-xs mt-1">{t.lowStockNote}</p>
           </div>
         </div>
 
@@ -173,17 +173,17 @@ function ProductModal({ product, categories, onSave, onClose }) {
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white 
+            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white 
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            {product ? 'Save Changes' : 'Add Product'}
+            {product ? t.saveChanges : t.addProduct}
           </button>
         </div>
       </div>
@@ -193,12 +193,13 @@ function ProductModal({ product, categories, onSave, onClose }) {
 
 // Category Modal
 function CategoryModal({ onSave, onClose }) {
+  const { t } = useLanguage()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
 
   const handleSubmit = async () => {
     if (!name) {
-      setError('Category name is required')
+      setError(t.categoryRequired)
       return
     }
     await onSave(name)
@@ -207,7 +208,7 @@ function CategoryModal({ onSave, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-        <h3 className="text-white font-bold text-xl mb-6">Add Category</h3>
+        <h3 className="text-white font-bold text-xl mb-6">{t.addCategory}</h3>
 
         {error && (
           <div className="bg-red-500/20 border border-red-500 text-red-400
@@ -231,14 +232,14 @@ function CategoryModal({ onSave, onClose }) {
             className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             onClick={handleSubmit}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Add Category
+            {t.addCategory}
           </button>
         </div>
       </div>
@@ -248,6 +249,7 @@ function CategoryModal({ onSave, onClose }) {
 
 // Main Products Page
 function Products() {
+  const { t } = useLanguage()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -273,7 +275,6 @@ function Products() {
     setLoading(false)
   }
 
-  // Filter products by search and category
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.barcode?.includes(search)
@@ -324,23 +325,23 @@ function Products() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Products</h2>
-          <p className="text-gray-400 mt-1">{products.length} products in catalog</p>
+          <h2 className="text-2xl font-bold text-white">{t.products}</h2>
+          <p className="text-gray-400 mt-1">{products.length} {t.productsInCatalog}</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowCategoryModal(true)}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2
                        rounded-lg text-sm font-medium transition-colors"
           >
-            + Add Category
+            + {t.addCategory}
           </button>
           <button
             onClick={() => { setEditingProduct(null); setShowProductModal(true) }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2
                        rounded-lg text-sm font-medium transition-colors"
           >
-            + Add Product
+            + {t.addProduct}
           </button>
         </div>
       </div>
@@ -351,14 +352,14 @@ function Products() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or barcode..."
-          className="flex-1 bg-gray-800 border border-gray-700 text-white 
-                     rounded-lg px-4 py-2.5 outline-none focus:ring-2 
+          className="flex-1 bg-gray-800 border border-gray-700 text-white
+                     rounded-lg px-4 py-2.5 outline-none focus:ring-2
                      focus:ring-blue-500 placeholder-gray-500"
         />
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-gray-800 border border-gray-700 text-white rounded-lg 
+          className="bg-gray-800 border border-gray-700 text-white rounded-lg
                      px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">All Categories</option>
@@ -377,16 +378,16 @@ function Products() {
                 Product
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Category
+                {t.category}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Price
+                {t.price}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Stock
+                {t.stock}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Actions
+                {t.actions}
               </th>
             </tr>
           </thead>
@@ -394,13 +395,13 @@ function Products() {
             {filteredProducts.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center text-gray-400 py-12">
-                  {search ? 'No products match your search' : 'No products yet — add your first one!'}
+                  {search ? 'No products match your search' : t.noProductsYet}
                 </td>
               </tr>
             ) : (
               filteredProducts.map(product => (
                 <tr key={product.id}
-                  className="border-b border-gray-700 last:border-0 
+                  className="border-b border-gray-700 last:border-0
                              hover:bg-gray-750 transition-colors">
                   <td className="px-6 py-4">
                     <p className="text-white font-medium">{product.name}</p>
@@ -411,9 +412,9 @@ function Products() {
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <span className="bg-gray-700 text-gray-300 text-xs 
+                    <span className="bg-gray-700 text-gray-300 text-xs
                                      px-2 py-1 rounded-full">
-                      {product.category_name || 'Uncategorized'}
+                      {product.category_name || t.uncategorized}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -431,7 +432,7 @@ function Products() {
                     }`}>
                       {product.stock} {product.unit}
                     </span>
-                    {product.stock <= product.low_stock_threshold && 
+                    {product.stock <= product.low_stock_threshold &&
                      product.stock > 0 && (
                       <span className="ml-2 text-yellow-400 text-xs">⚠️ Low</span>
                     )}
@@ -443,19 +444,19 @@ function Products() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(product)}
-                        className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 
-                                   hover:text-white px-3 py-1.5 rounded-lg text-xs 
+                        className="bg-blue-600/20 hover:bg-blue-600 text-blue-400
+                                   hover:text-white px-3 py-1.5 rounded-lg text-xs
                                    font-medium transition-colors"
                       >
-                        Edit
+                        {t.edit}
                       </button>
                       <button
                         onClick={() => setDeleteConfirm(product)}
-                        className="bg-red-600/20 hover:bg-red-600 text-red-400 
-                                   hover:text-white px-3 py-1.5 rounded-lg text-xs 
+                        className="bg-red-600/20 hover:bg-red-600 text-red-400
+                                   hover:text-white px-3 py-1.5 rounded-lg text-xs
                                    font-medium transition-colors"
                       >
-                        Delete
+                        {t.delete}
                       </button>
                     </div>
                   </td>
@@ -486,13 +487,14 @@ function Products() {
 
       {/* Delete Confirmation */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center 
+        <div className="fixed inset-0 bg-black/60 flex items-center
                         justify-center z-50">
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-white font-bold text-xl mb-2">Delete Product?</h3>
+            <h3 className="text-white font-bold text-xl mb-2">{t.deleteProduct}</h3>
             <p className="text-gray-400 mb-6">
-              Are you sure you want to delete <span className="text-white font-medium">
-              {deleteConfirm.name}</span>? This cannot be undone.
+              {t.deleteProductConfirm}{' '}
+              <span className="text-white font-medium">{deleteConfirm.name}</span>?{' '}
+              {t.cannotBeUndone}
             </p>
             <div className="flex gap-3">
               <button
@@ -500,14 +502,14 @@ function Products() {
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={() => handleDeleteProduct(deleteConfirm.id)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Delete
+                {t.delete}
               </button>
             </div>
           </div>

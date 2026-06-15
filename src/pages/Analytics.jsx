@@ -14,8 +14,10 @@ import {
   Cell,
   Legend,
 } from 'recharts'
+import { useLanguage } from '../context/languageContext'
 
 function Analytics() {
+  const { t } = useLanguage()
   const [sales, setSales] = useState([])
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -36,7 +38,6 @@ function Analytics() {
     setLoading(false)
   }
 
-  // Filter sales by period
   const getFilteredSales = () => {
     const now = new Date()
     const days = period === '7days' ? 7 : period === '30days' ? 30 : 90
@@ -51,7 +52,6 @@ function Analytics() {
 
   const filteredSales = getFilteredSales()
 
-  // Revenue by day
   const revenueByDay = () => {
     const days = period === '7days' ? 7 : period === '30days' ? 30 : 90
     const result = []
@@ -79,7 +79,6 @@ function Analytics() {
     return result
   }
 
-  // Top selling products
   const topProducts = () => {
     const productSales = {}
     filteredSales.forEach((sale) => {
@@ -100,7 +99,6 @@ function Analytics() {
       .slice(0, 5)
   }
 
-  // Sales by payment status for pie chart
   const salesByStatus = () => {
     const paid = sales.filter(
       (s) => s.payment_status === 'paid' && s.sale_type === 'sale'
@@ -116,7 +114,6 @@ function Analytics() {
     ].filter((item) => item.value > 0)
   }
 
-  // Summary stats
   const totalRevenue = filteredSales
     .filter((s) => s.payment_status === 'paid')
     .reduce((sum, s) => sum + s.total, 0)
@@ -135,7 +132,6 @@ function Analytics() {
   const topProductsData = topProducts()
   const statusData = salesByStatus()
 
-  // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -163,21 +159,23 @@ function Analytics() {
     )
   }
 
+  const periodOptions = [
+    { value: '7days', label: t.sevenDays },
+    { value: '30days', label: t.thirtyDays },
+    { value: '90days', label: t.ninetyDays },
+  ]
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Analytics</h2>
-          <p className="text-gray-400 mt-1">Business performance overview</p>
+          <h2 className="text-2xl font-bold text-white">{t.analytics}</h2>
+          <p className="text-gray-400 mt-1">{t.analyticsDesc}</p>
         </div>
         {/* Period Selector */}
         <div className="flex bg-gray-800 border border-gray-700 rounded-lg p-1">
-          {[
-            { value: '7days', label: '7 Days' },
-            { value: '30days', label: '30 Days' },
-            { value: '90days', label: '90 Days' },
-          ].map((option) => (
+          {periodOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => setPeriod(option.value)}
@@ -196,38 +194,38 @@ function Analytics() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Revenue</p>
+          <p className="text-gray-400 text-sm">{t.totalRevenue}</p>
           <p className="text-green-400 text-2xl font-bold mt-1">
             {totalRevenue.toFixed(2)} den
           </p>
-          <p className="text-gray-500 text-xs mt-1">Paid sales only</p>
+          <p className="text-gray-500 text-xs mt-1">{t.paidSalesOnly}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-          <p className="text-gray-400 text-sm">Pending Revenue</p>
+          <p className="text-gray-400 text-sm">{t.pendingRevenue}</p>
           <p className="text-yellow-400 text-2xl font-bold mt-1">
             {pendingRevenue.toFixed(2)} den
           </p>
-          <p className="text-gray-500 text-xs mt-1">Pay later sales</p>
+          <p className="text-gray-500 text-xs mt-1">{t.payLaterSales}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Transactions</p>
+          <p className="text-gray-400 text-sm">{t.totalTransactions}</p>
           <p className="text-blue-400 text-2xl font-bold mt-1">
             {filteredSales.length}
           </p>
-          <p className="text-gray-500 text-xs mt-1">In selected period</p>
+          <p className="text-gray-500 text-xs mt-1">{t.inSelectedPeriod}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-          <p className="text-gray-400 text-sm">Avg Sale Value</p>
+          <p className="text-gray-400 text-sm">{t.avgSaleValue}</p>
           <p className="text-purple-400 text-2xl font-bold mt-1">
             {isNaN(avgSaleValue) ? '0.00' : avgSaleValue.toFixed(2)} den
           </p>
-          <p className="text-gray-500 text-xs mt-1">Per transaction</p>
+          <p className="text-gray-500 text-xs mt-1">{t.perTransaction}</p>
         </div>
       </div>
 
       {/* Revenue Chart */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-        <h3 className="text-white font-semibold mb-6">Revenue Over Time</h3>
+        <h3 className="text-white font-semibold mb-6">{t.revenueOverTime}</h3>
         <ResponsiveContainer width="100%" height={250}>
           <LineChart data={dailyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -260,12 +258,12 @@ function Analytics() {
         {/* Top Products */}
         <div className="xl:col-span-2 bg-gray-800 rounded-xl border border-gray-700 p-6">
           <h3 className="text-white font-semibold mb-6">
-            Top Products by Revenue
+            {t.topProductsByRevenue}
           </h3>
           {topProductsData.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-4xl mb-2">📊</p>
-              <p className="text-gray-400">No sales data yet</p>
+              <p className="text-gray-400">{t.noSalesData}</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
@@ -293,11 +291,11 @@ function Analytics() {
 
         {/* Sales Breakdown Pie */}
         <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-          <h3 className="text-white font-semibold mb-6">Sales Breakdown</h3>
+          <h3 className="text-white font-semibold mb-6">{t.salesBreakdown}</h3>
           {statusData.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-4xl mb-2">🥧</p>
-              <p className="text-gray-400">No data yet</p>
+              <p className="text-gray-400">{t.noData}</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
@@ -339,7 +337,7 @@ function Analytics() {
 
       {/* Transactions Per Day */}
       <div className="bg-gray-800 rounded-xl border border-gray-700 p-6">
-        <h3 className="text-white font-semibold mb-6">Transactions Per Day</h3>
+        <h3 className="text-white font-semibold mb-6">{t.transactionsPerDay}</h3>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={dailyData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />

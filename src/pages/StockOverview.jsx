@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../context/languageContext'
 
 function StockOverview() {
+  const { t } = useLanguage()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -10,7 +12,7 @@ function StockOverview() {
   const [sortBy, setSortBy] = useState('name')
   const [showRestockModal, setShowRestockModal] = useState(false)
   const [restockProduct, setRestockProduct] = useState(null)
-  const [restockForm, setRestockForm] = useState({ quantity: '', note: '' })
+  const [restockForm, setRestockForm] = useState({ quantity: '', buying_price: '', note: '' })
   const [restockError, setRestockError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -54,7 +56,6 @@ function StockOverview() {
     return Math.min((product.stock / max) * 100, 100)
   }
 
-  // Filter and sort products
   const filteredProducts = products
     .filter((p) => {
       const matchesSearch =
@@ -75,7 +76,6 @@ function StockOverview() {
       return 0
     })
 
-  // Summary stats
   const totalProducts = products.length
   const totalStock = products.reduce((sum, p) => sum + p.stock, 0)
   const lowStockCount = products.filter(
@@ -87,14 +87,14 @@ function StockOverview() {
 
   const handleRestock = (product) => {
     setRestockProduct(product)
-    setRestockForm({ quantity: '', note: '' })
+    setRestockForm({ quantity: '', buying_price: '', note: '' })
     setRestockError('')
     setShowRestockModal(true)
   }
 
   const handleRestockSubmit = async () => {
     if (!restockForm.quantity || parseInt(restockForm.quantity) <= 0) {
-      setRestockError('Please enter a valid quantity')
+      setRestockError(t.enterValidQuantity)
       return
     }
 
@@ -130,8 +130,8 @@ function StockOverview() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white">Stock Overview</h2>
-        <p className="text-gray-400 mt-1">Monitor your warehouse inventory</p>
+        <h2 className="text-2xl font-bold text-white">{t.stockOverview}</h2>
+        <p className="text-gray-400 mt-1">{t.stockOverviewDesc}</p>
       </div>
 
       {/* Success Message */}
@@ -147,21 +147,21 @@ function StockOverview() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Products</p>
+          <p className="text-gray-400 text-sm">{t.totalProducts}</p>
           <p className="text-white text-3xl font-bold mt-1">{totalProducts}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Items in Stock</p>
+          <p className="text-gray-400 text-sm">{t.totalItemsInStock}</p>
           <p className="text-blue-400 text-3xl font-bold mt-1">{totalStock}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Low Stock</p>
+          <p className="text-gray-400 text-sm">{t.lowStock}</p>
           <p className="text-yellow-400 text-3xl font-bold mt-1">
             {lowStockCount}
           </p>
         </div>
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Out of Stock</p>
+          <p className="text-gray-400 text-sm">{t.outOfStockCount}</p>
           <p className="text-red-400 text-3xl font-bold mt-1">
             {outOfStockCount}
           </p>
@@ -173,7 +173,7 @@ function StockOverview() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search products..."
+          placeholder={`${t.search}...`}
           className="flex-1 min-w-48 bg-gray-800 border border-gray-700 text-white
                      rounded-lg px-4 py-2.5 outline-none focus:ring-2
                      focus:ring-blue-500 placeholder-gray-500 text-sm"
@@ -197,10 +197,10 @@ function StockOverview() {
           className="bg-gray-800 border border-gray-700 text-white rounded-lg
                      px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
-          <option value="all">All Status</option>
-          <option value="ok">✅ In Stock</option>
-          <option value="low">⚠️ Low Stock</option>
-          <option value="out">❌ Out of Stock</option>
+          <option value="all">{t.allStatus}</option>
+          <option value="ok">✅ {t.inStock}</option>
+          <option value="low">⚠️ {t.lowStock}</option>
+          <option value="out">❌ {t.outOfStockCount}</option>
         </select>
         <select
           value={sortBy}
@@ -208,10 +208,10 @@ function StockOverview() {
           className="bg-gray-800 border border-gray-700 text-white rounded-lg
                      px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
-          <option value="name">Sort: Name</option>
-          <option value="stock_asc">Sort: Stock (Low → High)</option>
-          <option value="stock_desc">Sort: Stock (High → Low)</option>
-          <option value="category">Sort: Category</option>
+          <option value="name">{t.sortName}</option>
+          <option value="stock_asc">{t.sortStockLow}</option>
+          <option value="stock_desc">{t.sortStockHigh}</option>
+          <option value="category">{t.sortCategory}</option>
         </select>
       </div>
 
@@ -224,19 +224,19 @@ function StockOverview() {
                 Product
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Category
+                {t.category}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Stock Level
+                {t.stock}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Threshold
+                {t.threshold}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Price
+                {t.price}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Status
+                {t.status}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
                 Action
@@ -273,7 +273,7 @@ function StockOverview() {
                       className="bg-gray-700 text-gray-300 text-xs
                                      px-2 py-1 rounded-full"
                     >
-                      {product.category_name || 'Uncategorized'}
+                      {product.category_name || t.uncategorized}
                     </span>
                   </td>
 
@@ -311,7 +311,7 @@ function StockOverview() {
                         className="bg-red-500/20 text-red-400 text-xs
                                        font-medium px-2 py-1 rounded-full"
                       >
-                        ❌ Out of Stock
+                        ❌ {t.outOfStockCount}
                       </span>
                     )}
                     {getStockStatus(product) === 'low' && (
@@ -319,7 +319,7 @@ function StockOverview() {
                         className="bg-yellow-500/20 text-yellow-400 text-xs
                                        font-medium px-2 py-1 rounded-full"
                       >
-                        ⚠️ Low Stock
+                        ⚠️ {t.lowStock}
                       </span>
                     )}
                     {getStockStatus(product) === 'ok' && (
@@ -327,7 +327,7 @@ function StockOverview() {
                         className="bg-green-500/20 text-green-400 text-xs
                                        font-medium px-2 py-1 rounded-full"
                       >
-                        ✅ In Stock
+                        ✅ {t.inStock}
                       </span>
                     )}
                   </td>
@@ -340,7 +340,7 @@ function StockOverview() {
                                  hover:text-white px-3 py-1.5 rounded-lg text-xs
                                  font-medium transition-colors"
                     >
-                      + Restock
+                      {t.quickRestock}
                     </button>
                   </td>
                 </tr>
@@ -358,10 +358,10 @@ function StockOverview() {
         >
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h3 className="text-white font-bold text-xl mb-2">
-              Restock Product
+              {t.restockProduct}
             </h3>
             <p className="text-gray-400 text-sm mb-6">
-              Adding stock to{' '}
+              {t.addingStockTo}{' '}
               <span className="text-white font-medium">
                 {restockProduct.name}
               </span>
@@ -379,7 +379,7 @@ function StockOverview() {
             <div className="space-y-4">
               {/* Current Stock */}
               <div className="bg-gray-700 rounded-lg p-3 flex justify-between">
-                <span className="text-gray-400 text-sm">Current Stock</span>
+                <span className="text-gray-400 text-sm">{t.currentStock}</span>
                 <span
                   className={`font-semibold text-sm ${getStockColor(restockProduct)}`}
                 >
@@ -390,7 +390,7 @@ function StockOverview() {
               {/* Quantity */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Quantity to Add *
+                  {t.quantityToAdd}
                 </label>
                 <input
                   type="number"
@@ -407,7 +407,7 @@ function StockOverview() {
                 />
                 {restockForm.quantity && parseInt(restockForm.quantity) > 0 && (
                   <p className="text-green-400 text-xs mt-1">
-                    New stock will be:{' '}
+                    {t.newStockWillBe}{' '}
                     {restockProduct.stock + parseInt(restockForm.quantity)}{' '}
                     {restockProduct.unit}
                   </p>
@@ -417,7 +417,7 @@ function StockOverview() {
               {/* Buying Price */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Buying Price per unit (optional)
+                  {t.buyingPriceOptional}
                 </label>
                 <input
                   type="number"
@@ -440,14 +440,14 @@ function StockOverview() {
               {/* Note */}
               <div>
                 <label className="text-gray-400 text-sm mb-1 block">
-                  Note (optional)
+                  {t.noteOptional}
                 </label>
                 <input
                   value={restockForm.note}
                   onChange={(e) =>
                     setRestockForm({ ...restockForm, note: e.target.value })
                   }
-                  placeholder="e.g. Delivery from supplier"
+                  placeholder={t.deliveryFromSupplier}
                   className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                              outline-none focus:ring-2 focus:ring-blue-500
                              placeholder-gray-500"
@@ -461,14 +461,14 @@ function StockOverview() {
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={handleRestockSubmit}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Confirm Restock
+                {t.confirmRestock}
               </button>
             </div>
           </div>

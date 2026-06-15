@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useLanguage } from '../context/languageContext'
 
 function UserModal({ user, onSave, onClose }) {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     name: user?.name || '',
     username: user?.username || '',
@@ -12,15 +14,15 @@ function UserModal({ user, onSave, onClose }) {
 
   const handleSubmit = async () => {
     if (!form.name || !form.username) {
-      setError('Name and username are required')
+      setError(t.nameAndUsernameRequired)
       return
     }
     if (!user && !form.password) {
-      setError('Password is required for new users')
+      setError(t.passwordRequired2)
       return
     }
     if (form.password && form.password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t.passwordMinLength)
       return
     }
     await onSave({ ...form, id: user?.id })
@@ -30,7 +32,7 @@ function UserModal({ user, onSave, onClose }) {
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
         <h3 className="text-white font-bold text-xl mb-6">
-          {user ? 'Edit User' : 'Add New User'}
+          {user ? t.editUser : t.addNewUser}
         </h3>
 
         {error && (
@@ -46,7 +48,7 @@ function UserModal({ user, onSave, onClose }) {
           {/* Name */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              Full Name *
+              {t.fullName} *
             </label>
             <input
               value={form.name}
@@ -61,7 +63,7 @@ function UserModal({ user, onSave, onClose }) {
           {/* Username */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              Username *
+              {t.username} *
             </label>
             <input
               value={form.username}
@@ -76,17 +78,13 @@ function UserModal({ user, onSave, onClose }) {
           {/* Password */}
           <div>
             <label className="text-gray-400 text-sm mb-1 block">
-              {user
-                ? 'New Password (leave blank to keep current)'
-                : 'Password *'}
+              {user ? t.newPassword : t.passwordRequired}
             </label>
             <input
               type="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder={
-                user ? 'Leave blank to keep current' : 'Min 6 characters'
-              }
+              placeholder={user ? t.leaveBlank : t.minSixChars}
               className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                          outline-none focus:ring-2 focus:ring-blue-500
                          placeholder-gray-500"
@@ -95,19 +93,17 @@ function UserModal({ user, onSave, onClose }) {
 
           {/* Role */}
           <div>
-            <label className="text-gray-400 text-sm mb-1 block">Role *</label>
+            <label className="text-gray-400 text-sm mb-1 block">{t.role} *</label>
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
               className="w-full bg-gray-700 text-white rounded-lg px-4 py-2.5
                          outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="cashier">Cashier</option>
-              <option value="owner">Owner</option>
+              <option value="cashier">{t.cashier}</option>
+              <option value="owner">{t.owner}</option>
             </select>
-            <p className="text-gray-500 text-xs mt-1">
-              Owners have full access. Cashiers can only process sales.
-            </p>
+            <p className="text-gray-500 text-xs mt-1">{t.ownerFullAccess}</p>
           </div>
         </div>
 
@@ -117,14 +113,14 @@ function UserModal({ user, onSave, onClose }) {
             className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             onClick={handleSubmit}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            {user ? 'Save Changes' : 'Add User'}
+            {user ? t.saveChanges : t.addUser}
           </button>
         </div>
       </div>
@@ -134,6 +130,7 @@ function UserModal({ user, onSave, onClose }) {
 
 function Users() {
   const { user: currentUser } = useSelector((state) => state.auth)
+  const { t } = useLanguage()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -192,8 +189,8 @@ function Users() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">Users</h2>
-          <p className="text-gray-400 mt-1">{users.length} users registered</p>
+          <h2 className="text-2xl font-bold text-white">{t.users}</h2>
+          <p className="text-gray-400 mt-1">{users.length} {t.usersRegistered}</p>
         </div>
         <button
           onClick={() => {
@@ -203,7 +200,7 @@ function Users() {
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2
                      rounded-lg text-sm font-medium transition-colors"
         >
-          + Add User
+          + {t.addUser}
         </button>
       </div>
 
@@ -259,10 +256,10 @@ function Users() {
                     : 'bg-gray-600/50 text-gray-300'
                 }`}
               >
-                {user.role === 'owner' ? '👑 Owner' : '💼 Cashier'}
+                {user.role === 'owner' ? `👑 ${t.owner}` : `💼 ${t.cashier}`}
               </span>
               <p className="text-gray-500 text-xs">
-                Since {new Date(user.created_at).toLocaleDateString()}
+                {t.since} {new Date(user.created_at).toLocaleDateString()}
               </p>
             </div>
 
@@ -277,7 +274,7 @@ function Users() {
                            hover:text-white py-2 rounded-lg text-xs font-medium
                            transition-colors"
               >
-                Edit
+                {t.edit}
               </button>
               {user.id !== currentUser.id && (
                 <button
@@ -286,7 +283,7 @@ function Users() {
                              hover:text-white py-2 rounded-lg text-xs font-medium
                              transition-colors"
                 >
-                  Delete
+                  {t.delete}
                 </button>
               )}
             </div>
@@ -313,13 +310,13 @@ function Users() {
                         justify-center z-50"
         >
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-white font-bold text-xl mb-2">Delete User?</h3>
+            <h3 className="text-white font-bold text-xl mb-2">{t.deleteUser}</h3>
             <p className="text-gray-400 mb-6">
-              Are you sure you want to delete{' '}
+              {t.deleteUserConfirm}{' '}
               <span className="text-white font-medium">
                 {deleteConfirm.name}
               </span>
-              ? This cannot be undone.
+              ? {t.cannotBeUndone}
             </p>
             <div className="flex gap-3">
               <button
@@ -327,14 +324,14 @@ function Users() {
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm.id)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Delete
+                {t.delete}
               </button>
             </div>
           </div>

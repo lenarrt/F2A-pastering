@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useLanguage } from '../context/languageContext'
 
 function Receipt({ sale, businessName, receiptFooter, onClose }) {
+  const { t } = useLanguage()
+
   const handlePrint = () => {
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`
@@ -164,7 +167,7 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
           </div>
           {sale.payment_status === 'pending' && (
             <p className="text-center text-yellow-600 font-bold text-xs mt-1">
-              ⏳ PAYMENT PENDING
+              {t.paymentPending}
             </p>
           )}
           {sale.note && (
@@ -183,14 +186,14 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
             className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Close
+            {t.close}
           </button>
           <button
             onClick={handlePrint}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            🖨️ Print
+            🖨️ {t.print}
           </button>
         </div>
       </div>
@@ -199,6 +202,7 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
 }
 
 function SalesHistory() {
+  const { t } = useLanguage()
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedSale, setSelectedSale] = useState(null)
@@ -229,7 +233,6 @@ function SalesHistory() {
   const handleVoid = async (id) => {
     await window.api.voidSale(id)
     setVoidConfirm(null)
-    // Update the sale in state directly without reloading the whole page
     setSales(
       sales.map((sale) =>
         sale.id === id ? { ...sale, payment_status: 'voided' } : sale
@@ -245,7 +248,6 @@ function SalesHistory() {
 
   const handleMarkPaid = async (id) => {
     await window.api.markSalePaid(id)
-    // Update the sale in state directly without reloading the whole page
     setSales(
       sales.map((sale) =>
         sale.id === id ? { ...sale, payment_status: 'paid' } : sale
@@ -253,7 +255,6 @@ function SalesHistory() {
     )
   }
 
-  // Filter sales
   const filteredSales = sales.filter((sale) => {
     const matchesStatus =
       filterStatus === 'all' || sale.payment_status === filterStatus
@@ -276,7 +277,6 @@ function SalesHistory() {
     )
   })
 
-  // Status badge helper
   const StatusBadge = ({ status }) => {
     const styles = {
       paid: 'bg-green-500/20 text-green-400',
@@ -297,7 +297,6 @@ function SalesHistory() {
     )
   }
 
-  // Type badge helper
   const TypeBadge = ({ type }) => {
     if (type === 'internal') {
       return (
@@ -319,7 +318,6 @@ function SalesHistory() {
     )
   }
 
-  // Summary stats
   const totalRevenue = filteredSales
     .filter((s) => s.payment_status === 'paid' && s.sale_type === 'sale')
     .reduce((sum, s) => sum + s.total, 0)
@@ -340,31 +338,34 @@ function SalesHistory() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white">Sales History</h2>
+        <h2 className="text-2xl font-bold text-white">{t.salesHistory}</h2>
         <p className="text-gray-400 mt-1">
-          {filteredSales.length} records found
+          {filteredSales.length} {t.salesHistoryDesc}
         </p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Revenue</p>
+          <p className="text-gray-400 text-sm">{t.totalRevenue}</p>
           <p className="text-green-400 text-2xl font-bold mt-1">
             {totalRevenue.toFixed(2)} den
           </p>
+          <p className="text-gray-500 text-xs mt-1">{t.paidSalesOnly}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Pending Payment</p>
+          <p className="text-gray-400 text-sm">{t.pendingPayment}</p>
           <p className="text-yellow-400 text-2xl font-bold mt-1">
             {pendingRevenue.toFixed(2)} den
           </p>
+          <p className="text-gray-500 text-xs mt-1">{t.payLaterSales}</p>
         </div>
         <div className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-          <p className="text-gray-400 text-sm">Total Transactions</p>
+          <p className="text-gray-400 text-sm">{t.totalTransactions}</p>
           <p className="text-blue-400 text-2xl font-bold mt-1">
             {filteredSales.filter((s) => s.payment_status !== 'voided').length}
           </p>
+          <p className="text-gray-500 text-xs mt-1">{t.inSelectedPeriod}</p>
         </div>
       </div>
 
@@ -384,7 +385,7 @@ function SalesHistory() {
           className="bg-gray-800 border border-gray-700 text-white rounded-lg
                      px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
-          <option value="all">All Statuses</option>
+          <option value="all">{t.allStatuses}</option>
           <option value="paid">Paid</option>
           <option value="pending">Pay Later</option>
           <option value="voided">Voided</option>
@@ -395,9 +396,9 @@ function SalesHistory() {
           className="bg-gray-800 border border-gray-700 text-white rounded-lg
                      px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
-          <option value="all">All Types</option>
-          <option value="sale">Sales Only</option>
-          <option value="internal">Internal Only</option>
+          <option value="all">{t.allTypes}</option>
+          <option value="sale">{t.salesOnly}</option>
+          <option value="internal">{t.internalOnly}</option>
         </select>
         <input
           type="date"
@@ -424,25 +425,25 @@ function SalesHistory() {
                 ID
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Date & Time
+                {t.dateTime}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Cashier
+                {t.cashier}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Customer
+                {t.customer}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Type
+                {t.type}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Status
+                {t.status}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Total
+                {t.total}
               </th>
               <th className="text-left text-gray-400 text-sm font-medium px-6 py-4">
-                Actions
+                {t.actions}
               </th>
             </tr>
           </thead>
@@ -450,7 +451,7 @@ function SalesHistory() {
             {filteredSales.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center text-gray-400 py-12">
-                  No sales found
+                  {t.noSalesFound}
                 </td>
               </tr>
             ) : (
@@ -514,7 +515,7 @@ function SalesHistory() {
                                    hover:text-white px-3 py-1.5 rounded-lg text-xs
                                    font-medium transition-colors"
                       >
-                        View
+                        {t.view}
                       </button>
 
                       {/* Mark as Paid */}
@@ -525,7 +526,7 @@ function SalesHistory() {
                                      hover:text-white px-3 py-1.5 rounded-lg text-xs
                                      font-medium transition-colors"
                         >
-                          Mark Paid
+                          {t.markPaid}
                         </button>
                       )}
 
@@ -537,7 +538,7 @@ function SalesHistory() {
                hover:text-white px-3 py-1.5 rounded-lg text-xs
                font-medium transition-colors"
                         >
-                          Void
+                          {t.void}
                         </button>
                       )}
                       <button
@@ -546,7 +547,7 @@ function SalesHistory() {
              hover:text-white px-3 py-1.5 rounded-lg text-xs
              font-medium transition-colors"
                       >
-                        Delete
+                        {t.delete}
                       </button>
                     </div>
                   </td>
@@ -574,16 +575,16 @@ function SalesHistory() {
                         justify-center z-50"
         >
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 className="text-white font-bold text-xl mb-2">Void Sale?</h3>
+            <h3 className="text-white font-bold text-xl mb-2">{t.voidSale}</h3>
             <p className="text-gray-400 mb-2">
-              Are you sure you want to void{' '}
+              {t.voidSaleConfirm}{' '}
               <span className="text-white font-medium">
                 Sale #{voidConfirm.id}
               </span>
               ?
             </p>
             <p className="text-yellow-400 text-sm mb-6">
-              ⚠️ This will restore the stock for all items in this sale.
+              {t.voidSaleWarning}
             </p>
             <div className="flex gap-3">
               <button
@@ -591,19 +592,20 @@ function SalesHistory() {
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={() => handleVoid(voidConfirm.id)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white
                            rounded-lg py-2.5 font-medium transition-colors"
               >
-                Void Sale
+                {t.voidSaleBtn}
               </button>
             </div>
           </div>
         </div>
       )}
+
       {/* Delete Confirmation */}
       {deleteConfirm && (
         <div
@@ -612,18 +614,17 @@ function SalesHistory() {
         >
           <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="text-white font-bold text-xl mb-2">
-              Delete Sale Permanently?
+              {t.deleteSalePermanently}
             </h3>
             <p className="text-gray-400 mb-2">
-              Are you sure you want to permanently delete{' '}
+              {t.deleteSaleConfirm}{' '}
               <span className="text-white font-medium">
                 Sale #{deleteConfirm.id}
               </span>
               ?
             </p>
             <p className="text-red-400 text-sm mb-6">
-              ⚠️ This will completely remove the sale from the database. Unlike
-              voiding, this cannot be undone and stock will NOT be restored.
+              {t.deleteSaleWarning}
             </p>
             <div className="flex gap-3">
               <button
@@ -631,14 +632,14 @@ function SalesHistory() {
                 className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                      rounded-lg py-2.5 font-medium transition-colors"
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm.id)}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white
                      rounded-lg py-2.5 font-medium transition-colors"
               >
-                Delete Permanently
+                {t.deletePermanently}
               </button>
             </div>
           </div>

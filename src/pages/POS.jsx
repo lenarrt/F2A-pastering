@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSelector } from 'react-redux'
+import { useLanguage } from '../context/languageContext'
 
 // Receipt component — this is what gets printed
 function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
+  const { t } = useLanguage()
   const receiptRef = useRef()
 
   const handlePrint = () => {
@@ -72,14 +74,6 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
           </div>
           `
               : ''
-          } 
-          ${
-            sale.note
-              ? `
-            <div class="divider"></div>
-            <p style="font-size: 11px;">📝 Note: ${sale.note}</p>
-          `
-              : ''
           }
           ${
             sale.note
@@ -105,7 +99,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
       <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
         <div className="text-center mb-4">
           <div className="text-4xl mb-2">🧾</div>
-          <h3 className="text-white font-bold text-xl">Sale Complete!</h3>
+          <h3 className="text-white font-bold text-xl">{t.saleComplete}</h3>
           <p className="text-gray-400 text-sm mt-1">Receipt #{sale.id}</p>
         </div>
 
@@ -168,7 +162,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
           </div>
           {sale.payment_status === 'pending' && (
             <p className="text-center text-yellow-600 font-bold text-xs mt-1">
-              ⏳ PAYMENT PENDING
+              {t.paymentPending}
             </p>
           )}
           {sale.note && (
@@ -190,14 +184,14 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            Close
+            {t.close}
           </button>
           <button
             onClick={handlePrint}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
                        rounded-lg py-2.5 font-medium transition-colors"
           >
-            🖨️ Print
+            🖨️ {t.print}
           </button>
         </div>
       </div>
@@ -208,6 +202,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
 // Main POS Page
 function POS() {
   const { user } = useSelector((state) => state.auth)
+  const { t } = useLanguage()
   const [products, setProducts] = useState([])
   const [cart, setCart] = useState([])
   const [search, setSearch] = useState('')
@@ -363,7 +358,7 @@ function POS() {
           if (!isInternalUse) {
             setCompletedSale(sale)
           } else {
-            alert('Internal use recorded successfully!')
+            alert(t.internalUseSuccess)
           }
           setCart([])
           setPayLater(false)
@@ -399,7 +394,7 @@ function POS() {
             ref={searchRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="🔍 Search product or scan barcode..."
+            placeholder={t.searchProductOrBarcode}
             className="w-full bg-gray-800 border border-gray-700 text-white
                        rounded-xl px-4 py-3 text-lg outline-none
                        focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
@@ -410,14 +405,12 @@ function POS() {
           {search === '' ? (
             <div className="text-center py-16">
               <p className="text-5xl mb-4">🔍</p>
-              <p className="text-gray-400">
-                Search for a product or scan a barcode
-              </p>
+              <p className="text-gray-400">{t.searchForProduct}</p>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-5xl mb-4">😕</p>
-              <p className="text-gray-400">No products found</p>
+              <p className="text-gray-400">{t.noProductsFound}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
@@ -446,12 +439,12 @@ function POS() {
                         className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5
                                        rounded-full ml-2 shrink-0"
                       >
-                        Out of Stock
+                        {t.outOfStock}
                       </span>
                     )}
                   </div>
                   <p className="text-gray-400 text-xs mt-1">
-                    {product.category_name || 'Uncategorized'}
+                    {product.category_name || t.uncategorized}
                   </p>
                   <div className="flex items-center justify-between mt-3">
                     <span
@@ -467,7 +460,7 @@ function POS() {
                       }`}
                     >
                       {product.stock === 0
-                        ? 'No stock'
+                        ? t.noStock
                         : `${product.stock} ${product.unit}`}
                     </span>
                   </div>
@@ -483,7 +476,7 @@ function POS() {
         {/* Cart Header */}
         <div className="p-4 border-b border-gray-700">
           <h3 className="text-white font-semibold">
-            Current Sale
+            {t.currentSale}
             {cart.length > 0 && (
               <span className="ml-2 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
                 {cart.length}
@@ -497,9 +490,9 @@ function POS() {
           {cart.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-3xl mb-2">🛒</p>
-              <p className="text-gray-400 text-sm">Cart is empty</p>
+              <p className="text-gray-400 text-sm">{t.cartIsEmpty}</p>
               <p className="text-gray-600 text-xs mt-1">
-                Search and add products
+                {t.searchAndAddProducts}
               </p>
             </div>
           ) : (
@@ -574,9 +567,9 @@ function POS() {
                     className="bg-gray-600 text-gray-300 text-xs rounded px-2 py-1
                                outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="">No discount</option>
-                    <option value="percent">% Percent</option>
-                    <option value="fixed">Fixed den</option>
+                    <option value="">{t.noDiscount}</option>
+                    <option value="percent">{t.percentDiscount}</option>
+                    <option value="fixed">{t.fixedDiscount}</option>
                   </select>
                   {item.discount_type && (
                     <input
@@ -605,7 +598,7 @@ function POS() {
         <div className="p-4 border-t border-gray-700 space-y-3">
           {/* Internal Use Toggle */}
           <div className="flex items-center justify-between">
-            <span className="text-gray-400 text-sm">Internal Use</span>
+            <span className="text-gray-400 text-sm">{t.internalUse}</span>
             <button
               onClick={() => setIsInternalUse(!isInternalUse)}
               className={`w-10 h-5 rounded-full transition-colors ${
@@ -623,7 +616,7 @@ function POS() {
           {/* Pay Later Toggle */}
           {!isInternalUse && (
             <div className="flex items-center justify-between">
-              <span className="text-gray-400 text-sm">Pay Later</span>
+              <span className="text-gray-400 text-sm">{t.payLater}</span>
               <button
                 onClick={() => {
                   setPayLater(!payLater)
@@ -647,7 +640,7 @@ function POS() {
             <input
               value={manualCustomerName}
               onChange={(e) => setManualCustomerName(e.target.value)}
-              placeholder="Customer name (optional)..."
+              placeholder={t.customerNameOptional}
               className={`w-full bg-gray-700 text-white rounded-lg px-3 py-2
                          text-sm outline-none placeholder-gray-500
                          ${
@@ -662,7 +655,7 @@ function POS() {
           <input
             value={saleNote}
             onChange={(e) => setSaleNote(e.target.value)}
-            placeholder="Add a note (optional)..."
+            placeholder={t.addNoteOptional}
             className="w-full bg-gray-700 text-white rounded-lg px-3 py-2
                        text-sm outline-none focus:ring-2 focus:ring-blue-500
                        placeholder-gray-500"
@@ -670,7 +663,7 @@ function POS() {
 
           {/* Total */}
           <div className="flex justify-between items-center">
-            <span className="text-gray-400">Total</span>
+            <span className="text-gray-400">{t.total}</span>
             <span className="text-white text-2xl font-bold">
               {total.toFixed(2)} den
             </span>
@@ -682,7 +675,7 @@ function POS() {
               className="bg-orange-500/20 text-orange-400 text-xs text-center
                             rounded-lg py-1.5 font-medium"
             >
-              🔧 Internal Use — Stock deducted, not counted as sale
+              {t.internalUseNote}
             </div>
           )}
           {payLater && (
@@ -690,7 +683,7 @@ function POS() {
               className="bg-yellow-500/20 text-yellow-400 text-xs text-center
                             rounded-lg py-1.5 font-medium"
             >
-              💳 Pay Later — Will appear in debts
+              {t.payLaterNote}
             </div>
           )}
 
@@ -709,12 +702,12 @@ function POS() {
                         }`}
           >
             {checkingOut
-              ? 'Processing...'
+              ? t.processing
               : isInternalUse
-                ? '🔧 Record Internal Use'
+                ? t.recordInternalUse
                 : payLater
-                  ? '💳 Save as Pay Later'
-                  : '✓ Complete Sale'}
+                  ? t.saveAsPayLater
+                  : `✓ ${t.completeSale}`}
           </button>
 
           {cart.length > 0 && (
@@ -723,7 +716,7 @@ function POS() {
               className="w-full bg-gray-700 hover:bg-gray-600 text-gray-400
                          hover:text-white py-2 rounded-xl transition-colors text-sm"
             >
-              Clear Cart
+              {t.clearCart}
             </button>
           )}
         </div>
