@@ -228,7 +228,7 @@ function Settings() {
             </div>
             {parseFloat(settings.tax_rate) > 0 && (
               <p className="text-center text-xs text-gray-500 mt-1">
-                {t.includesTax.replace('%', settings.tax_rate)}
+                {t.includesTax.replace('%', settings.tax_rate + '%')}
               </p>
             )}
             <p className="text-center text-xs text-gray-500 mt-2">

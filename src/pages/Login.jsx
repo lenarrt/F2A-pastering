@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../context/authSlice'
+import { useLanguage } from '../context/languageContext'
 
 function Login() {
   const dispatch = useDispatch()
@@ -8,6 +9,7 @@ function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const { t } = useLanguage()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -24,7 +26,7 @@ function Login() {
         setError(result.message)
       }
     } catch (err) {
-      setError('Something went wrong. Please try again.')
+      setError(t.somethingWentWrong)
     } finally {
       setLoading(false)
     }
@@ -37,7 +39,7 @@ function Login() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">🏗️</div>
           <h1 className="text-3xl font-bold text-white">F2A putz Company</h1>
-          <p className="text-gray-400 mt-2">Sign in to continue</p>
+          <p className="text-gray-400 mt-2">{t.welcomeBack}</p>
         </div>
 
         {/* Error Message */}
@@ -54,12 +56,14 @@ function Login() {
         <div className="space-y-4">
           {/* Username */}
           <div>
-            <label className="text-gray-400 text-sm mb-1 block">Username</label>
+            <label className="text-gray-400 text-sm mb-1 block">
+              {t.username}
+            </label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              placeholder={t.username}
               className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
                          outline-none focus:ring-2 focus:ring-blue-500 
                          placeholder-gray-500"
@@ -68,12 +72,14 @@ function Login() {
 
           {/* Password */}
           <div>
-            <label className="text-gray-400 text-sm mb-1 block">Password</label>
+            <label className="text-gray-400 text-sm mb-1 block">
+              {t.password}
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder={t.password}
               className="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
                          outline-none focus:ring-2 focus:ring-blue-500 
                          placeholder-gray-500"
@@ -88,7 +94,7 @@ function Login() {
                        disabled:cursor-not-allowed text-white font-semibold 
                        rounded-lg px-4 py-3 mt-2 transition-colors duration-200"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t.signingIn : t.signIn}
           </button>
         </div>
 
