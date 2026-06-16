@@ -267,7 +267,8 @@ function SalesHistory() {
     const matchesDateFrom =
       !dateFrom || new Date(sale.created_at + 'Z') >= new Date(dateFrom)
     const matchesDateTo =
-      !dateTo || new Date(sale.created_at + 'Z') <= new Date(dateTo + 'T23:59:59')
+      !dateTo ||
+      new Date(sale.created_at + 'Z') <= new Date(dateTo + 'T23:59:59')
     return (
       matchesStatus &&
       matchesType &&
@@ -278,19 +279,20 @@ function SalesHistory() {
   })
 
   const StatusBadge = ({ status }) => {
+    const { t, language } = useLanguage()
     const styles = {
       paid: 'bg-green-500/20 text-green-400',
       pending: 'bg-yellow-500/20 text-yellow-400',
       voided: 'bg-red-500/20 text-red-400',
     }
     const labels = {
-      paid: '✓ Paid',
-      pending: '⏳ Pay Later',
-      voided: '✕ Voided',
+      paid: language === 'al' ? '✓ E Paguar' : '✓ Paid',
+      pending: language === 'al' ? '⏳ Paguaj Më Vonë' : '⏳ Pay Later',
+      voided: language === 'al' ? '✕ Anuluar' : '✕ Voided',
     }
     return (
       <span
-        className={`text-xs font-medium px-2 py-1 rounded-full ${styles[status]}`}
+        className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ${styles[status]}`}
       >
         {labels[status]}
       </span>
@@ -298,22 +300,23 @@ function SalesHistory() {
   }
 
   const TypeBadge = ({ type }) => {
+    const { language } = useLanguage()
     if (type === 'internal') {
       return (
         <span
           className="text-xs font-medium px-2 py-1 rounded-full
-                         bg-orange-500/20 text-orange-400"
+                       bg-orange-500/20 text-orange-400 whitespace-nowrap"
         >
-          🔧 Internal
+          🔧 {language === 'al' ? 'Përdorim të Brendshëm' : 'Internal'}
         </span>
       )
     }
     return (
       <span
         className="text-xs font-medium px-2 py-1 rounded-full
-                       bg-blue-500/20 text-blue-400"
+                     bg-blue-500/20 text-blue-400 whitespace-nowrap"
       >
-        🛒 Sale
+        🛒 {language === 'al' ? 'Shitje' : 'Sale'}
       </span>
     )
   }
@@ -583,9 +586,7 @@ function SalesHistory() {
               </span>
               ?
             </p>
-            <p className="text-yellow-400 text-sm mb-6">
-              {t.voidSaleWarning}
-            </p>
+            <p className="text-yellow-400 text-sm mb-6">{t.voidSaleWarning}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setVoidConfirm(null)}
@@ -623,9 +624,7 @@ function SalesHistory() {
               </span>
               ?
             </p>
-            <p className="text-red-400 text-sm mb-6">
-              {t.deleteSaleWarning}
-            </p>
+            <p className="text-red-400 text-sm mb-6">{t.deleteSaleWarning}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteConfirm(null)}
