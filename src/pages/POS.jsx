@@ -35,8 +35,8 @@ function Receipt({
         <body>
           <h2>${businessName}</h2>
           <p>Receipt #${sale.id}</p>
-          <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
-          <p>${language === 'al' ? 'Shitësi' : 'Cashier'}: ${sale.cashier_name}</p>
+          <p>${new Date(sale.created_at + 'Z').toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+          <p>${language === 'al' ? 'Shitësi' : 'Shitësi'}: ${sale.cashier_name}</p>
           ${sale.customer_name ? `<p>${language === 'al' ? 'Klienti' : 'Customer'}: ${sale.customer_name}</p>` : ''}
           <div class="divider"></div>
           ${items
@@ -117,7 +117,7 @@ function Receipt({
         >
           <p className="text-center font-bold text-sm">{businessName}</p>
           <p className="text-center text-xs text-gray-600">
-            {new Date(sale.created_at).toLocaleString([], {
+            {new Date(sale.created_at + 'Z').toLocaleString([], {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
@@ -126,7 +126,7 @@ function Receipt({
             })}
           </p>
           <p className="text-center text-xs">
-            {language === 'al' ? 'Shitësi' : 'Cashier'}: {sale.cashier_name}
+            {language === 'al' ? 'Shitësi' : 'Shitësi'}: {sale.cashier_name}
           </p>
           {sale.customer_name && (
             <p className="text-center text-xs">
@@ -166,7 +166,7 @@ function Receipt({
           ))}
           <div className="border-t border-dashed border-gray-400 my-2" />
           <div className="flex justify-between font-bold">
-            <span>{language === 'al' ? 'TOTALI' : 'TOTAL'}</span>
+            <span>{language === 'al' ? 'TOTALI' : 'TOTALI'}</span>
             <span>{sale.total.toFixed(2)} den</span>
           </div>
           {sale.payment_status === 'pending' && (
@@ -748,8 +748,8 @@ function POS() {
         <Receipt
           sale={completedSale}
           items={completedSale.items}
-          businessName={settings.business_name || 'F2A Plastering'}
-          receiptFooter={settings.receipt_footer || 'Thank you!'}
+          businessName={settings.business_name || 'F2A putz Company'}
+          receiptFooter={settings.receipt_footer || 'Faleminderit!'}
           onClose={() => setCompletedSale(null)}
           language={language}
         />

@@ -290,7 +290,7 @@ function Settings() {
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-gray-400 text-sm">{t.appName}</span>
-            <span className="text-white text-sm">F2A Plastering</span>
+            <span className="text-white text-sm">F2A putz Company</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400 text-sm">{t.version}</span>

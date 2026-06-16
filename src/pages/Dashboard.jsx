@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useLanguage } from '../context/languageContext'
-
 function StatCard({ title, value, subtitle, color, icon }) {
   return (
     <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -43,7 +42,7 @@ function LowStockCard({ product }) {
 
 function Dashboard() {
   const { user } = useSelector((state) => state.auth)
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [products, setProducts] = useState([])
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
@@ -70,7 +69,7 @@ function Dashboard() {
   const today = new Date().toDateString()
 
   const todaySales = sales.filter(
-    (sale) => new Date(sale.created_at).toDateString() === today
+    (sale) => new Date(sale.created_at + 'Z').toDateString() === today
   )
 
   const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.total, 0)
@@ -101,12 +100,40 @@ function Dashboard() {
           {greeting}, {user?.name}! 👋
         </h2>
         <p className="text-gray-400 mt-1">
-          {new Date().toLocaleDateString('en-GB', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
+          {language === 'al'
+            ? (() => {
+                const d = new Date()
+                const days = [
+                  'E Diel',
+                  'E Hënë',
+                  'E Martë',
+                  'E Mërkurë',
+                  'E Enjte',
+                  'E Premte',
+                  'E Shtunë',
+                ]
+                const months = [
+                  'Janar',
+                  'Shkurt',
+                  'Mars',
+                  'Prill',
+                  'Maj',
+                  'Qershor',
+                  'Korrik',
+                  'Gusht',
+                  'Shtator',
+                  'Tetor',
+                  'Nëntor',
+                  'Dhjetor',
+                ]
+                return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
+              })()
+            : new Date().toLocaleDateString('en-GB', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
         </p>
       </div>
 
@@ -200,7 +227,8 @@ function Dashboard() {
                       Sale #{sale.id}
                     </p>
                     <p className="text-gray-400 text-xs">
-                      {t.by} {sale.cashier_name} · {sale.items?.length} {t.items}
+                      {t.by} {sale.cashier_name} · {sale.items?.length}{' '}
+                      {t.items}
                     </p>
                   </div>
                   <span className="text-green-400 font-semibold text-sm">
