@@ -259,6 +259,7 @@ function Products() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [deleteCategoryConfirm, setDeleteCategoryConfirm] = useState(null)
 
   useEffect(() => {
     loadData()
@@ -303,6 +304,13 @@ function Products() {
   const handleSaveCategory = async (name) => {
     await window.api.createCategory({ name })
     setShowCategoryModal(false)
+    loadData()
+  }
+
+  const handleDeleteCategory = async (id) => {
+    await window.api.deleteCategory(id)
+    setDeleteCategoryConfirm(null)
+    setSelectedCategory('')
     loadData()
   }
 
@@ -356,17 +364,31 @@ function Products() {
                      rounded-lg px-4 py-2.5 outline-none focus:ring-2
                      focus:ring-blue-500 placeholder-gray-500"
         />
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-gray-800 border border-gray-700 text-white rounded-lg
-                     px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+        <div className="flex gap-2">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="bg-gray-800 border border-gray-700 text-white rounded-lg
+                       px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+          {selectedCategory && (
+            <button
+              onClick={() => {
+                const cat = categories.find(c => c.id === parseInt(selectedCategory))
+                setDeleteCategoryConfirm(cat)
+              }}
+              className="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white
+                         px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              {t.delete}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Products Table */}
@@ -483,6 +505,37 @@ function Products() {
           onSave={handleSaveCategory}
           onClose={() => setShowCategoryModal(false)}
         />
+      )}
+
+      {/* Delete Category Confirmation */}
+      {deleteCategoryConfirm && (
+        <div className="fixed inset-0 bg-black/60 flex items-center
+                        justify-center z-50">
+          <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-white font-bold text-xl mb-2">{t.deleteCategory}</h3>
+            <p className="text-gray-400 mb-2">
+              {t.deleteCategoryConfirm}{' '}
+              <span className="text-white font-medium">{deleteCategoryConfirm.name}</span>?
+            </p>
+            <p className="text-yellow-400 text-sm mb-6">{t.deleteCategoryNote}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteCategoryConfirm(null)}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
+                           rounded-lg py-2.5 font-medium transition-colors"
+              >
+                {t.cancel}
+              </button>
+              <button
+                onClick={() => handleDeleteCategory(deleteCategoryConfirm.id)}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white
+                           rounded-lg py-2.5 font-medium transition-colors"
+              >
+                {t.delete}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Delete Confirmation */}

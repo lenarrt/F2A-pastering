@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('api', {
   // Categories
   getCategories: () => ipcRenderer.invoke('categories:getAll'),
   createCategory: (category) => ipcRenderer.invoke('categories:create', category),
+  deleteCategory: (id) => ipcRenderer.invoke('categories:delete', id),
 
   // Sales
   createSale: (sale) => ipcRenderer.invoke('sales:create', sale),

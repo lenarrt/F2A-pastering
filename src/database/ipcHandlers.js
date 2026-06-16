@@ -118,6 +118,19 @@ ipcMain.handle('categories:create', (event, { name }) => {
   }
 })
 
+ipcMain.handle('categories:delete', (event, id) => {
+  try {
+    const deleteCategory = db.transaction(() => {
+      db.prepare('UPDATE products SET category_id = NULL WHERE category_id = ?').run(id)
+      db.prepare('DELETE FROM categories WHERE id = ?').run(id)
+    })
+    deleteCategory()
+    return { success: true }
+  } catch (error) {
+    return { success: false, message: error.message }
+  }
+})
+
 // ============ PRODUCTS ============
 ipcMain.handle('products:getAll', () => {
   try {
