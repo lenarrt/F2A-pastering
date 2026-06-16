@@ -211,7 +211,7 @@ function Settings() {
                 minute: '2-digit',
               })}
             </p>
-            <p className="text-center text-xs">Cashier: Owner</p>
+            <p className="text-center text-xs">Shitesi: Owner</p>
             <div className="border-t border-dashed border-gray-400 my-2" />
             <div className="flex justify-between">
               <span>Sample Product</span>

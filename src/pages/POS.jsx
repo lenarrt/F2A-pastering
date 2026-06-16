@@ -3,7 +3,14 @@ import { useSelector } from 'react-redux'
 import { useLanguage } from '../context/languageContext'
 
 // Receipt component — this is what gets printed
-function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
+function Receipt({
+  sale,
+  items,
+  businessName,
+  receiptFooter,
+  onClose,
+  language,
+}) {
   const { t } = useLanguage()
   const receiptRef = useRef()
 
@@ -29,8 +36,8 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
           <h2>${businessName}</h2>
           <p>Receipt #${sale.id}</p>
           <p>${new Date(sale.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
-          <p>Cashier: ${sale.cashier_name}</p>
-          ${sale.customer_name ? `<p>Customer: ${sale.customer_name}</p>` : ''}
+          <p>${language === 'al' ? 'Shitësi' : 'Cashier'}: ${sale.cashier_name}</p>
+          ${sale.customer_name ? `<p>${language === 'al' ? 'Klienti' : 'Customer'}: ${sale.customer_name}</p>` : ''}
           <div class="divider"></div>
           ${items
             .map(
@@ -43,7 +50,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
               item.discount_type && item.discount_value > 0
                 ? `
               <div class="row discount">
-                <span>Discount (${
+                <span>${language === 'al' ? 'Zbritje' : 'Discount'} (${
                   item.discount_type === 'percent'
                     ? `-${item.discount_value}%`
                     : `-${item.discount_value} den`
@@ -62,16 +69,16 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             .join('')}
           <div class="divider"></div>
           <div class="row total">
-            <span>TOTAL</span>
+            <span>${language === 'al' ? 'TOTALI' : 'TOTAL'}</span>
             <span>${sale.total.toFixed(2)} den</span>
           </div>
           ${
             sale.payment_status === 'pending'
               ? `
-          <div class="row" style="color: #f59e0b;">
-            <span>PAYMENT STATUS</span>
-            <span>PAY LATER</span>
-          </div>
+            <div class="row" style="color: #f59e0b;">
+              <span>${language === 'al' ? 'STATUSI I PAGESËS' : 'PAYMENT STATUS'}</span>
+              <span>${language === 'al' ? 'PAGUAJ MË VONË' : 'PAY LATER'}</span>
+            </div>
           `
               : ''
           }
@@ -79,7 +86,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             sale.note
               ? `
             <div class="divider"></div>
-            <p class="note">📝 Note: ${sale.note}</p>
+            <p class="note">📝 ${language === 'al' ? 'Shënim' : 'Note'}: ${sale.note}</p>
           `
               : ''
           }
@@ -118,10 +125,12 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
               minute: '2-digit',
             })}
           </p>
-          <p className="text-center text-xs">Cashier: {sale.cashier_name}</p>
+          <p className="text-center text-xs">
+            {language === 'al' ? 'Shitësi' : 'Cashier'}: {sale.cashier_name}
+          </p>
           {sale.customer_name && (
             <p className="text-center text-xs">
-              Customer: {sale.customer_name}
+              {language === 'al' ? 'Klienti' : 'Customer'}: {sale.customer_name}
             </p>
           )}
           <div className="border-t border-dashed border-gray-400 my-2" />
@@ -136,7 +145,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
               {item.discount_type && item.discount_value > 0 && (
                 <div className="flex justify-between text-orange-500">
                   <span>
-                    Discount (
+                    {language === 'al' ? 'Zbritje' : 'Discount'} (
                     {item.discount_type === 'percent'
                       ? `-${item.discount_value}%`
                       : `-${item.discount_value} den`}
@@ -157,7 +166,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
           ))}
           <div className="border-t border-dashed border-gray-400 my-2" />
           <div className="flex justify-between font-bold">
-            <span>TOTAL</span>
+            <span>{language === 'al' ? 'TOTALI' : 'TOTAL'}</span>
             <span>{sale.total.toFixed(2)} den</span>
           </div>
           {sale.payment_status === 'pending' && (
@@ -169,7 +178,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
             <>
               <div className="border-t border-dashed border-gray-400 my-2" />
               <p className="text-xs text-gray-600 italic">
-                📝 Note: {sale.note}
+                📝 {language === 'al' ? 'Shënim' : 'Note'}: {sale.note}
               </p>
             </>
           )}
@@ -202,7 +211,7 @@ function Receipt({ sale, items, businessName, receiptFooter, onClose }) {
 // Main POS Page
 function POS() {
   const { user } = useSelector((state) => state.auth)
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [products, setProducts] = useState([])
   const [cart, setCart] = useState([])
   const [search, setSearch] = useState('')
@@ -254,6 +263,9 @@ function POS() {
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.barcode?.includes(search)
   )
+
+  // Products to show before search — in stock only, up to 12
+  const quickProducts = products.filter((p) => p.stock > 0).slice(0, 12)
 
   const addToCart = (product) => {
     const existing = cart.find((item) => item.product_id === product.id)
@@ -385,6 +397,58 @@ function POS() {
     )
   }
 
+  // Reusable product card
+  const ProductCard = ({ product }) => (
+    <button
+      key={product.id}
+      onClick={() => product.stock > 0 && addToCart(product)}
+      disabled={product.stock === 0}
+      className={`border rounded-xl p-4 text-left transition-all w-full
+        ${
+          product.stock === 0
+            ? 'bg-gray-800/50 border-gray-700 cursor-not-allowed opacity-60'
+            : 'bg-gray-800 border-gray-700 hover:border-blue-500 hover:bg-gray-750 cursor-pointer'
+        }`}
+    >
+      <div className="flex items-start justify-between mb-1">
+        <p
+          className={`font-medium text-sm ${
+            product.stock === 0 ? 'text-gray-500' : 'text-white'
+          }`}
+        >
+          {product.name}
+        </p>
+        {product.stock === 0 && (
+          <span
+            className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5
+                           rounded-full ml-2 shrink-0"
+          >
+            {t.outOfStock}
+          </span>
+        )}
+      </div>
+      <p className="text-gray-400 text-xs mt-1">
+        {product.category_name || t.uncategorized}
+      </p>
+      <div className="flex items-center justify-between mt-3">
+        <span
+          className={`font-bold text-sm ${
+            product.stock === 0 ? 'text-gray-500' : 'text-green-400'
+          }`}
+        >
+          {product.price.toFixed(2)} den
+        </span>
+        <span
+          className={`text-xs ${
+            product.stock === 0 ? 'text-red-400' : 'text-gray-500'
+          }`}
+        >
+          {product.stock === 0 ? t.noStock : `${product.stock} ${product.unit}`}
+        </span>
+      </div>
+    </button>
+  )
+
   return (
     <div className="flex gap-6 h-[calc(100vh-140px)]">
       {/* Left — Product Search */}
@@ -403,9 +467,15 @@ function POS() {
 
         <div className="flex-1 overflow-y-auto">
           {search === '' ? (
-            <div className="text-center py-16">
-              <p className="text-5xl mb-4">🔍</p>
-              <p className="text-gray-400">{t.searchForProduct}</p>
+            <div>
+              <p className="text-gray-400 text-sm mb-3">
+                {language === 'al' ? 'Zgjidhni Shpejt' : 'Quick Select'}
+              </p>
+              <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
+                {quickProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16">
@@ -415,56 +485,7 @@ function POS() {
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
               {filteredProducts.map((product) => (
-                <button
-                  key={product.id}
-                  onClick={() => product.stock > 0 && addToCart(product)}
-                  disabled={product.stock === 0}
-                  className={`border rounded-xl p-4 text-left transition-all w-full
-                    ${
-                      product.stock === 0
-                        ? 'bg-gray-800/50 border-gray-700 cursor-not-allowed opacity-60'
-                        : 'bg-gray-800 border-gray-700 hover:border-blue-500 hover:bg-gray-750 cursor-pointer'
-                    }`}
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    <p
-                      className={`font-medium text-sm ${
-                        product.stock === 0 ? 'text-gray-500' : 'text-white'
-                      }`}
-                    >
-                      {product.name}
-                    </p>
-                    {product.stock === 0 && (
-                      <span
-                        className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5
-                                       rounded-full ml-2 shrink-0"
-                      >
-                        {t.outOfStock}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-gray-400 text-xs mt-1">
-                    {product.category_name || t.uncategorized}
-                  </p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span
-                      className={`font-bold text-sm ${
-                        product.stock === 0 ? 'text-gray-500' : 'text-green-400'
-                      }`}
-                    >
-                      {product.price.toFixed(2)} den
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        product.stock === 0 ? 'text-red-400' : 'text-gray-500'
-                      }`}
-                    >
-                      {product.stock === 0
-                        ? t.noStock
-                        : `${product.stock} ${product.unit}`}
-                    </span>
-                  </div>
-                </button>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
@@ -730,6 +751,7 @@ function POS() {
           businessName={settings.business_name || 'F2A Plastering'}
           receiptFooter={settings.receipt_footer || 'Thank you!'}
           onClose={() => setCompletedSale(null)}
+          language={language}
         />
       )}
     </div>

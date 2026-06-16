@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../context/authSlice'
+import { useLanguage } from '../context/languageContext'
 
 // Icons as simple SVG components
 const Icons = {
@@ -166,40 +167,41 @@ function MainLayout({ currentPage, setCurrentPage, children }) {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const isOwner = user?.role === 'owner'
+  const { t } = useLanguage()
 
   // Navigation items — owner sees all, cashier sees limited
   const navItems = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: t.dashboard,
       icon: Icons.Dashboard,
       ownerOnly: false,
     },
-    { id: 'pos', label: 'New Sale', icon: Icons.POS, ownerOnly: false },
+    { id: 'pos', label: t.newSale, icon: Icons.POS, ownerOnly: false },
     {
       id: 'products',
-      label: 'Products',
+      label: t.products,
       icon: Icons.Products,
       ownerOnly: true,
     },
     {
       id: 'stock',
-      label: 'Stock Overview',
+      label: t.stockOverview,
       icon: Icons.Stock,
       ownerOnly: false,
     },
-    { id: 'restock', label: 'Restock', icon: Icons.Restock, ownerOnly: true },
-    { id: 'sales', label: 'Sales History', icon: Icons.Sales, ownerOnly: true },
+    { id: 'restock', label: t.restock, icon: Icons.Restock, ownerOnly: true },
+    { id: 'sales', label: t.salesHistory, icon: Icons.Sales, ownerOnly: true },
     {
       id: 'analytics',
-      label: 'Analytics',
+      label: t.analytics,
       icon: Icons.Analytics,
       ownerOnly: true,
     },
-    { id: 'users', label: 'Users', icon: Icons.Users, ownerOnly: true },
+    { id: 'users', label: t.users, icon: Icons.Users, ownerOnly: true },
     {
       id: 'settings',
-      label: 'Settings',
+      label: t.settings,
       icon: Icons.Settings,
       ownerOnly: true,
     },
@@ -277,7 +279,7 @@ function MainLayout({ currentPage, setCurrentPage, children }) {
                        hover:text-red-400 transition-colors duration-150"
           >
             <Icons.Logout />
-            Sign Out
+            {t.signOut}
           </button>
         </div>
       </div>
@@ -287,7 +289,8 @@ function MainLayout({ currentPage, setCurrentPage, children }) {
         {/* Top Bar */}
         <div className="bg-gray-800 border-b border-gray-700 px-6 py-4">
           <h2 className="text-lg font-semibold text-white capitalize">
-            {currentPage === 'pos' ? 'New Sale' : currentPage}
+            {navItems.find((item) => item.id === currentPage)?.label ||
+              currentPage}
           </h2>
         </div>
 
