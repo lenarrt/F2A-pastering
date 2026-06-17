@@ -3,8 +3,7 @@ import { useSelector } from 'react-redux'
 import { useLanguage } from '../context/languageContext'
 
 function Receipt({ sale, businessName, receiptFooter, onClose }) {
-  const { t } = useLanguage()
-
+  const { t, language } = useLanguage()
   const handlePrint = () => {
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`
@@ -201,8 +200,253 @@ function Receipt({ sale, businessName, receiptFooter, onClose }) {
   )
 }
 
+function ReportModal({ sales, settings, language, t, onClose }) {
+  const [period, setPeriod] = useState('month')
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
+
+  const getDateRange = () => {
+    const now = new Date()
+    if (period === 'month') {
+      const from = new Date(now.getFullYear(), now.getMonth(), 1)
+      const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+      return { from, to }
+    }
+    if (period === 'year') {
+      const from = new Date(now.getFullYear(), 0, 1)
+      const to = new Date(now.getFullYear(), 11, 31, 23, 59, 59)
+      return { from, to }
+    }
+    // custom
+    const from = customFrom ? new Date(customFrom) : null
+    const to = customTo ? new Date(customTo + 'T23:59:59') : null
+    return { from, to }
+  }
+
+  const handleGenerate = () => {
+    const { from, to } = getDateRange()
+    if (period === 'custom' && (!from || !to)) {
+      alert(
+        language === 'al'
+          ? 'Ju lutemi zgjidhni të dy datat'
+          : 'Please select both dates'
+      )
+      return
+    }
+
+    const filtered = sales.filter((s) => {
+      const saleDate = new Date(s.created_at + 'Z')
+      return saleDate >= from && saleDate <= to
+    })
+
+    const paidSales = filtered.filter(
+      (s) => s.payment_status === 'paid' && s.sale_type === 'sale'
+    )
+    const pendingSales = filtered.filter((s) => s.payment_status === 'pending')
+    const internalSales = filtered.filter((s) => s.sale_type === 'internal')
+    const voidedSales = filtered.filter((s) => s.payment_status === 'voided')
+
+    const totalRevenue = paidSales.reduce((sum, s) => sum + s.total, 0)
+    const pendingTotal = pendingSales.reduce((sum, s) => sum + s.total, 0)
+
+    const isAl = language === 'al'
+    const labels = {
+      title: isAl ? 'Raporti i Shitjeve' : 'Sales Report',
+      period: isAl ? 'Periudha' : 'Period',
+      totalRevenue: isAl ? 'Qarkullimi Total' : 'Total Revenue',
+      pendingPayment: isAl ? 'Pagesa Në Pritje' : 'Pending Payment',
+      totalTransactions: isAl ? 'Gjithsej Shitje' : 'Total Transactions',
+      internalUse: isAl ? 'Përdorim i Brendshëm' : 'Internal Use',
+      voided: isAl ? 'Anuluar' : 'Voided',
+      id: 'ID',
+      date: isAl ? 'Data' : 'Date',
+      cashier: isAl ? 'Shitësi' : 'Cashier',
+      customer: isAl ? 'Klienti' : 'Customer',
+      type: isAl ? 'Lloji' : 'Type',
+      status: isAl ? 'Statusi' : 'Status',
+      total: isAl ? 'Totali' : 'Total',
+      generatedOn: isAl ? 'Gjeneruar më' : 'Generated on',
+      paid: isAl ? 'E Paguar' : 'Paid',
+      pending: isAl ? 'Paguaj Më Vonë' : 'Pay Later',
+      internal: isAl ? 'I Brendshëm' : 'Internal',
+      sale: isAl ? 'Shitje' : 'Sale',
+    }
+
+    const periodLabel =
+      period === 'month'
+        ? isAl
+          ? 'Këtë Muaj'
+          : 'This Month'
+        : period === 'year'
+          ? isAl
+            ? 'Këtë Vit'
+            : 'This Year'
+          : `${from.toLocaleDateString()} - ${to.toLocaleDateString()}`
+
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${labels.title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 30px; color: #111; }
+            h1 { text-align: center; margin-bottom: 4px; }
+            .subtitle { text-align: center; color: #666; margin-bottom: 24px; }
+            .summary { display: flex; gap: 16px; margin-bottom: 24px; }
+            .card { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; }
+            .card .label { font-size: 12px; color: #666; }
+            .card .value { font-size: 20px; font-weight: bold; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+            th { background: #f3f3f3; }
+            .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #999; }
+            .voided { text-decoration: line-through; color: #999; }
+          </style>
+        </head>
+        <body>
+          <h1>${settings.business_name || 'F2A Plastering'}</h1>
+          <p class="subtitle">${labels.title} — ${periodLabel}</p>
+
+          <div class="summary">
+            <div class="card">
+              <div class="label">${labels.totalRevenue}</div>
+              <div class="value">${totalRevenue.toFixed(2)} den</div>
+            </div>
+            <div class="card">
+              <div class="label">${labels.pendingPayment}</div>
+              <div class="value">${pendingTotal.toFixed(2)} den</div>
+            </div>
+            <div class="card">
+              <div class="label">${labels.totalTransactions}</div>
+              <div class="value">${filtered.length}</div>
+            </div>
+            <div class="card">
+              <div class="label">${labels.internalUse}</div>
+              <div class="value">${internalSales.length}</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>${labels.id}</th>
+                <th>${labels.date}</th>
+                <th>${labels.cashier}</th>
+                <th>${labels.customer}</th>
+                <th>${labels.type}</th>
+                <th>${labels.status}</th>
+                <th>${labels.total}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered
+                .map(
+                  (s) => `
+                <tr class="${s.payment_status === 'voided' ? 'voided' : ''}">
+                  <td>#${s.id}</td>
+                  <td>${new Date(s.created_at + 'Z').toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                  <td>${s.cashier_name}</td>
+                  <td>${s.customer_name || '—'}</td>
+                  <td>${s.sale_type === 'internal' ? labels.internal : labels.sale}</td>
+                  <td>${s.payment_status === 'paid' ? labels.paid : s.payment_status === 'pending' ? labels.pending : labels.voided}</td>
+                  <td>${s.total.toFixed(2)} den</td>
+                </tr>
+              `
+                )
+                .join('')}
+            </tbody>
+          </table>
+
+          <div class="footer">${labels.generatedOn}: ${new Date().toLocaleString()}</div>
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+      <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <h3 className="text-white font-bold text-xl mb-4">
+          {language === 'al' ? 'Printo Raportin' : 'Print Report'}
+        </h3>
+
+        <div className="space-y-2 mb-4">
+          <button
+            onClick={() => setPeriod('month')}
+            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors ${
+              period === 'month'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {language === 'al' ? 'Këtë Muaj' : 'This Month'}
+          </button>
+          <button
+            onClick={() => setPeriod('year')}
+            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors ${
+              period === 'year'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {language === 'al' ? 'Këtë Vit' : 'This Year'}
+          </button>
+          <button
+            onClick={() => setPeriod('custom')}
+            className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors ${
+              period === 'custom'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {language === 'al' ? 'Periudhë e Personalizuar' : 'Custom Range'}
+          </button>
+        </div>
+
+        {period === 'custom' && (
+          <div className="flex gap-2 mb-4">
+            <input
+              type="date"
+              value={customFrom}
+              onChange={(e) => setCustomFrom(e.target.value)}
+              className="flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg
+                         px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="date"
+              value={customTo}
+              onChange={(e) => setCustomTo(e.target.value)}
+              className="flex-1 bg-gray-700 border border-gray-600 text-white rounded-lg
+                         px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white
+                       rounded-lg py-2.5 font-medium transition-colors"
+          >
+            {t.cancel}
+          </button>
+          <button
+            onClick={handleGenerate}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white
+                       rounded-lg py-2.5 font-medium transition-colors"
+          >
+            🖨️ {language === 'al' ? 'Gjenero' : 'Generate'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 function SalesHistory() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [sales, setSales] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedSale, setSelectedSale] = useState(null)
@@ -214,6 +458,7 @@ function SalesHistory() {
   const [dateTo, setDateTo] = useState('')
   const [voidConfirm, setVoidConfirm] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  const [showReportModal, setShowReportModal] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -340,11 +585,20 @@ function SalesHistory() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-white">{t.salesHistory}</h2>
-        <p className="text-gray-400 mt-1">
-          {filteredSales.length} {t.salesHistoryDesc}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">{t.salesHistory}</h2>
+          <p className="text-gray-400 mt-1">
+            {filteredSales.length} {t.salesHistoryDesc}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowReportModal(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5
+               rounded-lg text-sm font-medium transition-colors"
+        >
+          🖨️ {language === 'al' ? 'Printo Raport' : 'Print Report'}
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -643,6 +897,16 @@ function SalesHistory() {
             </div>
           </div>
         </div>
+      )}
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportModal
+          sales={sales}
+          settings={settings}
+          language={language}
+          t={t}
+          onClose={() => setShowReportModal(false)}
+        />
       )}
     </div>
   )
