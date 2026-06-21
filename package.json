@@ -13,8 +13,8 @@
     "build:mac": "npm run build && electron-builder --mac"
   },
   "build": {
-    "appId": "com.f2a.plastering",
-    "productName": "F2A Plastering",
+    "appId": "com.kurtishisolutions.lista",
+    "productName": "Lista",
     "directories": {
       "output": "dist-electron"
     },
