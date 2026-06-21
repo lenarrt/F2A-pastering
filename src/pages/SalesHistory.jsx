@@ -224,6 +224,7 @@ function ReportModal({ sales, settings, language, t, onClose }) {
   }
 
   const handleGenerate = () => {
+    const now = new Date()
     const { from, to } = getDateRange()
     if (period === 'custom' && (!from || !to)) {
       alert(
@@ -272,15 +273,40 @@ function ReportModal({ sales, settings, language, t, onClose }) {
       sale: isAl ? 'Shitje' : 'Sale',
     }
 
+    const monthNamesEn = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ]
+    const monthNamesAl = [
+      'Janar',
+      'Shkurt',
+      'Mars',
+      'Prill',
+      'Maj',
+      'Qershor',
+      'Korrik',
+      'Gusht',
+      'Shtator',
+      'Tetor',
+      'Nëntor',
+      'Dhjetor',
+    ]
+
     const periodLabel =
       period === 'month'
-        ? isAl
-          ? 'Këtë Muaj'
-          : 'This Month'
+        ? `${isAl ? monthNamesAl[now.getMonth()] : monthNamesEn[now.getMonth()]} ${now.getFullYear()}`
         : period === 'year'
-          ? isAl
-            ? 'Këtë Vit'
-            : 'This Year'
+          ? `${now.getFullYear()}`
           : `${from.toLocaleDateString()} - ${to.toLocaleDateString()}`
 
     const printWindow = window.open('', '_blank')
