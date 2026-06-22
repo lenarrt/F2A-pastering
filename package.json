@@ -63,8 +63,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "latest",
+    "@supabase/supabase-js": "^2.108.2",
     "bcryptjs": "latest",
     "better-sqlite3": "latest",
+    "dotenv": "^17.4.2",
     "jsonwebtoken": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -72,6 +74,7 @@
     "react-redux": "latest",
     "react-router-dom": "latest",
     "react-to-print": "latest",
-    "recharts": "latest"
+    "recharts": "latest",
+    "ws": "^8.21.0"
   }
 }

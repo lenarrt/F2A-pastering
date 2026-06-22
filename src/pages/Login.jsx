@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../context/authSlice'
 import { useLanguage } from '../context/languageContext'
@@ -9,7 +9,14 @@ function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [businessName, setBusinessName] = useState('Lista')
   const { t } = useLanguage()
+
+  useEffect(() => {
+    window.api.getSettings().then((result) => {
+      if (result.data?.business_name) setBusinessName(result.data.business_name)
+    }).catch(() => {})
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -38,7 +45,7 @@ function Login() {
         {/* Logo / Title */}
         <div className="text-center mb-8">
           <div className="text-5xl mb-4">🏗️</div>
-          <h1 className="text-3xl font-bold text-white">F2A putz Company</h1>
+          <h1 className="text-3xl font-bold text-white">{businessName}</h1>
           <p className="text-gray-400 mt-2">{t.signIn}</p>
         </div>
 
@@ -100,7 +107,7 @@ function Login() {
 
         {/* Footer */}
         <p className="text-gray-600 text-xs text-center mt-8">
-          F2A Plastering — Inventory & POS System
+          Lista by Kurtishi Solutions
         </p>
       </div>
     </div>

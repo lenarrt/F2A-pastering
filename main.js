@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 
 const isDev = !app.isPackaged
 function createWindow() {
@@ -33,6 +34,7 @@ function createWindow() {
 app.whenReady().then(() => {
   require('./src/database/database.js')
   require('./src/database/ipcHandlers.js')
+  require('./src/database/licenseHandlers.js')
   createWindow()
 })
 

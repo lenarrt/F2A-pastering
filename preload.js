@@ -47,4 +47,9 @@ contextBridge.exposeInMainWorld('api', {
   // Backup & Restore
   exportBackup: () => ipcRenderer.invoke('backup:export'),
   importBackup: () => ipcRenderer.invoke('backup:import'),
+
+  // License
+  checkStoredLicense: () => ipcRenderer.invoke('license:checkStored'),
+  saveLicense: (data) => ipcRenderer.invoke('license:save', data),
+  verifyLicenseOnline: (data) => ipcRenderer.invoke('license:verifyOnline', data),
 })
