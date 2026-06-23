@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Dark navy rounded-square background, rx ≈ 22% of 1024 -->
+  <rect width="1024" height="1024" rx="225" ry="225" fill="#0B0E14"/>
+  <!-- Bold serif "L" – baseline chosen so L+gap+bar is vertically centred -->
+  <text
+    x="512" y="660"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="580"
+    font-weight="bold"
+    fill="#378ADD"
+    text-anchor="middle">L</text>
+  <!-- Accent bar: ~52% width, rounded ends, 56px below L baseline -->
+  <!-- x=256 centres bar at 522, matching the L's actual ink centre (521.8px) -->
+  <rect x="256" y="716" width="532" height="50" rx="25" ry="25" fill="#378ADD"/>
+</svg>

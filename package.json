@@ -33,9 +33,11 @@
       }
     ],
     "mac": {
+      "icon": "build/icon.icns",
       "target": "dmg"
     },
     "win": {
+      "icon": "build/icon.ico",
       "target": "nsis"
     },
     "nsis": {
