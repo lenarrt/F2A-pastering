@@ -15,7 +15,7 @@ function createWindow() {
       contextIsolation: true,
     },
     titleBarStyle: 'hiddenInset',
-    title: 'F2A Plastering',
+    title: 'Lista',
     show: false,
   })
 

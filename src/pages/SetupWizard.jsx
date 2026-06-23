@@ -5,7 +5,6 @@ function SetupWizard({ onComplete }) {
   const { changeLanguage } = useLanguage()
   const [businessName, setBusinessName] = useState('')
   const [language, setLanguage] = useState('en')
-  const [taxRate, setTaxRate] = useState('0')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -18,10 +17,7 @@ function SetupWizard({ onComplete }) {
     setError('')
     setSaving(true)
     try {
-      await Promise.all([
-        window.api.updateSetting({ key: 'business_name', value: businessName.trim() }),
-        window.api.updateSetting({ key: 'tax_rate', value: taxRate || '0' }),
-      ])
+      await window.api.updateSetting({ key: 'business_name', value: businessName.trim() })
       changeLanguage(language)
       onComplete()
     } catch {
@@ -83,24 +79,6 @@ function SetupWizard({ onComplete }) {
                 </button>
               ))}
             </div>
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-sm mb-1 block">
-              Tax Rate (%) <span className="text-gray-500 font-normal">— optional</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              step="0.1"
-              value={taxRate}
-              onChange={(e) => setTaxRate(e.target.value)}
-              placeholder="0"
-              className="w-full bg-gray-700 text-white rounded-lg px-4 py-3
-                         outline-none focus:ring-2 focus:ring-blue-500
-                         placeholder-gray-500"
-            />
           </div>
 
           <button

@@ -330,7 +330,7 @@ function ReportModal({ sales, settings, language, t, onClose }) {
           </style>
         </head>
         <body>
-          <h1>${settings.business_name || 'F2A Plastering'}</h1>
+          <h1>${settings.business_name || 'Lista'}</h1>
           <p class="subtitle">${labels.title} — ${periodLabel}</p>
 
           <div class="summary">
@@ -845,7 +845,7 @@ function SalesHistory() {
       {selectedSale && (
         <Receipt
           sale={selectedSale}
-          businessName={settings.business_name || 'F2A Plastering'}
+          businessName={settings.business_name || 'Lista'}
           receiptFooter={settings.receipt_footer || 'Thank you!'}
           onClose={() => setSelectedSale(null)}
         />

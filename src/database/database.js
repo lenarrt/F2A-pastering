@@ -142,7 +142,7 @@ const initDatabase = () => {
   // Default settings
   db.exec(`
     INSERT OR IGNORE INTO settings (key, value) VALUES
-    ('business_name', 'F2A Plastering'),
+    ('business_name', ''),
     ('receipt_footer', 'Thank you for your business!'),
     ('tax_rate', '0')
   `)
