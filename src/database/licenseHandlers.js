@@ -4,7 +4,10 @@ const WebSocket = require('ws')
 const fs = require('fs')
 const path = require('path')
 
-console.log('[licenseHandlers] module loaded')
+// Public Supabase keys — safe to embed in compiled builds (protected by RLS).
+// Dev mode can still override these via .env; packaged builds use the constants.
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lhlhsonziausynkzqrys.supabase.co'
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_hj_lB78bOsSP3enS-AkEhQ_Zj2NLCJH'
 
 function getLicensePath() {
   return path.join(app.getPath('userData'), 'license.json')
@@ -23,19 +26,11 @@ function writeLicenseFile(data) {
 }
 
 function getSupabase() {
-  const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_ANON_KEY
-  console.log('[licenseHandlers] getSupabase() — SUPABASE_URL:', url ? url : '(not set)')
-  console.log('[licenseHandlers] getSupabase() — SUPABASE_ANON_KEY:', key ? '(set, length=' + key.length + ')' : '(not set)')
-  if (!url || !key) return null
-return createClient(url, key, {
-  auth: {
-    persistSession: false
-  },
-  realtime: {
-    transport: WebSocket
-  }
-})}
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: false },
+    realtime: { transport: WebSocket },
+  })
+}
 
 function isNetworkError(err) {
   const msg = (err.message || '').toLowerCase()

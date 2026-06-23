@@ -2,7 +2,7 @@ const Database = require('better-sqlite3')
 const path = require('path')
 const { app } = require('electron')
 
-const dbPath = path.join(app.getPath('userData'), 'f2a-plastering.db')
+const dbPath = path.join(app.getPath('userData'), 'lista.db')
 const db = new Database(dbPath)
 
 db.pragma('journal_mode = WAL')

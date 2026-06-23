@@ -3,6 +3,13 @@ const path = require('path')
 require('dotenv').config({ path: path.join(__dirname, '.env') })
 
 const isDev = !app.isPackaged
+
+// Keep dev and packaged builds in separate userData dirs so they never
+// share a database or license file on the developer's machine.
+if (isDev) {
+  app.setPath('userData', app.getPath('userData') + '-dev')
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,

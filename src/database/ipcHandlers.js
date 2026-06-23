@@ -4,7 +4,8 @@ const dbPath = db.dbPath
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const JWT_SECRET = 'f2a-plastering-secret-key'
+// TODO: move this to an env var (e.g. process.env.JWT_SECRET) before sharing the build
+const JWT_SECRET = 'lista-secret-key'
 
 // ============ AUTH ============
 ipcMain.handle('auth:login', (event, { username, password }) => {
@@ -432,7 +433,7 @@ ipcMain.handle('backup:export', async () => {
 
     const result = await dialog.showSaveDialog({
       title: 'Save Backup',
-      defaultPath: `f2a-backup-${new Date().toISOString().split('T')[0]}.db`,
+      defaultPath: `lista-backup-${new Date().toISOString().split('T')[0]}.db`,
       filters: [{ name: 'Database Backup', extensions: ['db'] }]
     })
 
