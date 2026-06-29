@@ -1,0 +1,50 @@
+
+> lista@1.0.3 release
+> npm run build && electron-builder --publish always
+
+
+> lista@1.0.3 build
+> vite build
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+vite v5.4.21 building for production...
+transforming...
+✓ 761 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.47 kB │ gzip:   0.31 kB
+dist/assets/index-CJ0W9F7p.css   18.99 kB │ gzip:   4.13 kB
+dist/assets/index-b24RQgek.js   723.60 kB │ gzip: 204.56 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.74s
+  • electron-builder  version=26.15.2 os=24.6.0
+  • loaded configuration  file=package.json ("build" field)
+  • @electron/rebuild already used by electron-builder, please consider to remove excess dependency from devDependencies
+
+To ensure your native dependencies are always matched electron version, simply add script `"postinstall": "electron-builder install-app-deps" to your `package.json`
+  • executing @electron/rebuild  electronVersion=33.3.1 arch=arm64 buildFromSource=false workspaceRoot=/Users/lenart/Desktop/Lista projectDir=./ appDir=./
+  • installing native dependencies  arch=arm64
+  • preparing       moduleName=better-sqlite3 arch=arm64
+  • finished        moduleName=better-sqlite3 arch=arm64
+  • completed installing native dependencies
+  • packaging       platform=darwin arch=arm64 electron=33.3.1 appOutDir=dist-electron/mac-arm64
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=/Users/lenart/Desktop/Lista/dist-electron/mac-arm64
+  • searching for node modules  pm=npm searchDir=/Users/lenart/Desktop/Lista
+  • duplicate dependency references  dependencies=["react-redux@9.3.0","once@1.4.0","once@1.4.0","pump@3.0.4","string_decoder@1.1.1","end-of-stream@1.4.5","react-dom@19.2.7","react-dom@19.2.7","@reduxjs/toolkit@2.12.0","react-dom@19.2.7","react-redux@9.3.0","d3-array@3.2.4","d3-interpolate@3.0.1","d3-time@3.1.0","d3-time@3.1.0","d3-array@3.2.4"]
+  • skipped macOS application code signing  reason=cannot find valid "Developer ID Application" identity or custom non-Apple code signing certificate, it could cause some undefined behaviour, e.g. macOS localized description not visible, see https://electron.build/code-signing allIdentities=  1) FEAED0FA1358E5DE24A5E03A291C0D9F5C9E85DE "localhost" (CSSMERR_TP_CERT_EXPIRED)
+     1 identities found
+                                                Valid identities only
+     0 valid identities found
+  • building        target=DMG arch=arm64 file=dist-electron/Lista-1.0.3-arm64.dmg
+  • building block map  blockMapFile=dist-electron/Lista-1.0.3-arm64.dmg.blockmap
+  • publishing      publisher=Github (owner: lenarrt, project: Lista-by-Kurtishi-Solutions, version: 1.0.3)
+  • publishing      publisher=Github (owner: lenarrt, project: Lista-by-Kurtishi-Solutions, version: 1.0.3)
+  • uploading       file=Lista-1.0.3-arm64.dmg.blockmap provider=github
+  • uploading       file=Lista-1.0.3-arm64.dmg provider=github
+  • overwrite published file  file=Lista-1.0.3-arm64.dmg reason=already exists on GitHub
+  • overwrite published file  file=latest-mac.yml reason=already exists on GitHub

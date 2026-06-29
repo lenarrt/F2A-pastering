@@ -465,3 +465,8 @@ ipcMain.handle('backup:import', async () => {
     return { success: false, message: error.message }
   }
 })
+
+ipcMain.handle('app:getVersion', () => {
+  const { app } = require('electron')
+  return app.getVersion()
+})

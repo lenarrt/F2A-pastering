@@ -52,4 +52,7 @@ contextBridge.exposeInMainWorld('api', {
   checkStoredLicense: () => ipcRenderer.invoke('license:checkStored'),
   saveLicense: (data) => ipcRenderer.invoke('license:save', data),
   verifyLicenseOnline: (data) => ipcRenderer.invoke('license:verifyOnline', data),
+
+  // App
+  getAppVersion: () => ipcRenderer.invoke('app:getVersion'),
 })

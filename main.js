@@ -42,6 +42,7 @@ function createWindow() {
 }
 
 function setupAutoUpdater(win) {
+  console.log('[auto-updater] setupAutoUpdater called, isDev:', isDev)
   if (isDev) return
 
   autoUpdater.autoDownload = false
@@ -115,7 +116,11 @@ function setupAutoUpdater(win) {
     console.error('[auto-updater]', err)
   })
 
-  setTimeout(() => autoUpdater.checkForUpdates(), 5000)
+  console.log('[auto-updater] scheduling checkForUpdates in 5s')
+  setTimeout(() => {
+    console.log('[auto-updater] calling checkForUpdates()')
+    autoUpdater.checkForUpdates()
+  }, 5000)
 }
 
 app.whenReady().then(() => {

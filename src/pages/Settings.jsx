@@ -10,10 +10,12 @@ function Settings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState('')
+  const [appVersion, setAppVersion] = useState('')
   const { language, changeLanguage, t } = useLanguage()
 
   useEffect(() => {
     loadSettings()
+    window.api.getAppVersion().then(setAppVersion)
   }, [])
 
   const loadSettings = async () => {
@@ -294,7 +296,7 @@ function Settings() {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400 text-sm">{t.version}</span>
-            <span className="text-white text-sm">1.0.0</span>
+            <span className="text-white text-sm">{appVersion}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400 text-sm">{t.builtWith}</span>
@@ -304,7 +306,7 @@ function Settings() {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400 text-sm">{t.developer}</span>
-            <span className="text-white text-sm">lenarrt</span>
+            <span className="text-white text-sm">Kurtishi Solutions</span>
           </div>
         </div>
       </div>
