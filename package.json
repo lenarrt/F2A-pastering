@@ -1,6 +1,6 @@
 {
   "name": "lista",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "Inventory and POS system for a plastering warehouse",
   "main": "main.js",
   "scripts": {
@@ -34,9 +34,10 @@
       }
     ],
     "publish": {
-      "provider": "github",
-      "owner": "lenarrt",
-      "repo": "Lista-by-Kurtishi-Solutions"
+    "provider": "github",
+    "owner": "lenarrt",
+    "repo": "Lista-by-Kurtishi-Solutions",
+    "vPrefixedTagName": true
     },
     "mac": {
       "icon": "build/icon.icns",
